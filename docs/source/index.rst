@@ -1,10 +1,10 @@
 ssmixtwins Documentation
 ========================
 
-GitHub 👉 https://github.com/yuakagi/ssmixtiwns
+GitHub 👉 https://github.com/yuakagi/ssmixtwins
 
 .. image:: _static/ssmixtwins_concept.png
-    :alt: ssmixtiwns concept
+    :alt: ssmixtwins concept
     :width: 800px
     :class: center
 
@@ -14,7 +14,7 @@ English
 | This is a package to generate synthetic medical database standardized by HL7 messages.  
 | This package is localized to Japanses national HL7 standard called SS-MIX2. 
 | The package can generate high-quality, large-scale synthetic data for research and development of healthcare applications.
-| The details of ssmixtiwns (Japanses only) 👉 :doc:`Data details <manual/main_page>`
+| The details of ssmixtwins (Japanses only) 👉 :doc:`Data details <manual/main_page>`
 
 
 
@@ -25,7 +25,7 @@ English
 日本のHL7標準であるSS-MIX2にローカライズされています。
 ヘルスケアアプリケーションの研究開発のための高品質で大規模な合成データを生成できます。
 
-ssmixtiwnsの詳細はこちら👉 :doc:`ssmixtiwnsについて <manual/main_page>`    
+ssmixtwinsの詳細はこちら👉 :doc:`ssmixtwinsについて <manual/main_page>`    
 
 (開発者向け: :doc:`データ生成マニュアル <manual/tutorial>`)
  
@@ -33,7 +33,7 @@ ssmixtiwnsの詳細はこちら👉 :doc:`ssmixtiwnsについて <manual/main_pa
    :maxdepth: 3
    :caption: Contents:
 
-   ssmixtiwnsについて <manual/main_page>
+   ssmixtwinsについて <manual/main_page>
    データ生成マニュアル(開発者用) <manual/tutorial>
    元となるCSVデータ(開発者用) <manual/source_data>
-   ssmixtiwns API <generated/ssmixtwins>
+   ssmixtwins API <generated/ssmixtwins>

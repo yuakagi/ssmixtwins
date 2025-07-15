@@ -3,7 +3,7 @@
 # ===============================================================================
 **/reference/
 **/ssmixtwins.egg-info/
-ssmixtwins/build
+build/
 
 # ===============================================================================
 # COMMON .GITIGNORE STRATEGIES TO ALL PYTHON PROJECTS
