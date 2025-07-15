@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ssmixtwins.src.main &mdash; ssmixtwins  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/color_theme.css?v=38118af3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/color_theme.css?v=38118af3" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../manual/main_page.html">ssmixtwinsについて</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manual/tutorial.html">データ生成マニュアル(開発者用)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manual/source_data.html">元となるCSVデータ(開発者用)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generated/ssmixtwins.html">ssmixtwins API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ssmixtwins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ssmixtwins.src.main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ssmixtwins.src.main</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Main module to create SSMIX dataset from CSV files.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_csv_files</span><span class="p">,</span> <span class="n">parse_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.objects</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_random_hospital</span><span class="p">,</span> <span class="n">generate_random_physician</span>
+
+
+<div class="viewcode-block" id="create_ssmix">
+<a class="viewcode-back" href="../../../generated/ssmixtwins.html#ssmixtwins.create_ssmix">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_ssmix</span><span class="p">(</span>
+    <span class="n">source_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">already_validated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;iso2022_jp&quot;</span><span class="p">,</span>
+    <span class="n">n_physicians</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create SSMIX dataset from CSV files.</span>
+
+<span class="sd">    This function reads CSV files from the source directory, validates them, and generates SSMIX dataset files.</span>
+<span class="sd">    The SSMIX root directory will be created as &quot;&lt;output_dir&gt;/ssmixtwins&quot;.</span>
+<span class="sd">    First, this function validates all the CSV files in the source directory, which may take some time.</span>
+<span class="sd">    If the CSV files are valid, it proceeds to parse the files and generate SSMIX dataset files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        source_dir (str): Directory containing CSV files.</span>
+<span class="sd">            Each CSV file must be named as &quot;&lt;start_age:integer from 0 to 120&gt;_&lt;patient sex: either M,F,U,O,or N&gt;_&lt;file_number&gt;.csv&quot;.</span>
+<span class="sd">            &#39;file_number&#39; is an optional number to avoid file name collision. This number is not used in the SSMIX data, therefore, it can be any thing.</span>
+<span class="sd">            For example, &quot;64_M_1a5d9f7892cd437fb6f9b22bba876dfa.csv&quot;.</span>
+<span class="sd">            Each file must contain a single patient data.</span>
+<span class="sd">            Each table has columns as follows:</span>
+
+<span class="sd">                - &quot;timestamp&quot; (str): Timestamp of the event in &quot;YYYYMMDDHHMMSSFFFFFF&quot; format.</span>
+<span class="sd">                - &quot;type&quot; (int): The record type. 0 for admissions, 1 for discharges, 2 for outpatient visits, 3 for diagnoses, 4 for prescricription orders, 5 for injection orders, and 6 for laboratory tests.</span>
+<span class="sd">                - &quot;text&quot; (str): Textual description of the event (e.g., diagnosis name for diagnoses, medication name for prescription orders).</span>
+<span class="sd">                - &quot;icd10&quot; (str): ICD-10 code for the diagnosis (only for rows type==3, empty otherwise).</span>
+<span class="sd">                - &quot;mdcdx2&quot; (str): MDCDX2 code for the diagnosis (only for rows type==3, empty otherwise).</span>
+<span class="sd">                - &quot;provisional&quot; (str): &quot;1&quot; if the diagnosis is provisional. (only for rows type==3, empty otherwise).</span>
+<span class="sd">                - &quot;hot&quot; (str): HOT drug codes for prescription and injection orders (only for rows type==4 or 5, empty otherwise).</span>
+<span class="sd">                - &quot;jlac10&quot; (str): JLAC10 code for laboratory tests (only for rows type==6, empty otherwise).</span>
+<span class="sd">                - &quot;lab_value&quot; (str): Laboratory test value (only for rows type==6, empty otherwise).</span>
+<span class="sd">                - &quot;unit&quot; (str): Unit of the laboratory test value (only for rows type==6, empty otherwise).</span>
+<span class="sd">                - &quot;discharge_disposition&quot; (str): Discharge disposition code (only for rows type==1, empty otherwise).</span>
+
+<span class="sd">        output_dir (str): Directory to save the SSMIX dataset.</span>
+<span class="sd">            The SSMIX root directory will be created as &quot;&lt;output_dir&gt;/ssmixtwins&quot;.</span>
+<span class="sd">            Error files may be saved in this directory too.</span>
+<span class="sd">        max_workers (int): Maximum number of workers for parallel processing.</span>
+<span class="sd">            Default is 1, which means no parallel processing.</span>
+<span class="sd">            Because this process takes a long time, it is recommended to set this to a higher value if you are processing many files.</span>
+<span class="sd">            The appropriate value depends on your CPU and memory resources. Please set an appropriate value so that this does not overwhelm your system.</span>
+<span class="sd">            For example, processing 1000 CSV files with 10 workers finishes in a short time.</span>
+<span class="sd">            Setting this to one is ok, but it may take a long time to process many files.</span>
+<span class="sd">        already_validated (bool): If True, skip validation of CSV files.</span>
+<span class="sd">            This function first loads all CSV files in the source directory and validates them.</span>
+<span class="sd">            The function proceeds only if the CSV files are valid.</span>
+<span class="sd">            You can set this to True if you have already validated the CSV files and want to skip the validation step.</span>
+<span class="sd">        encoding (str): Encoding to use when saving the files. Default is &quot;iso2022_jp&quot;.</span>
+<span class="sd">        n_physicians (int): Number of random physicians to generate.</span>
+<span class="sd">            Default is 30, and physicians are randomly selected from the randomly generated physicians throughout the generated data.</span>
+<span class="sd">            The default value is usually sufficient, but you can increase or decrease this number if you want to.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Collect all CSV files in the current directory</span>
+
+    <span class="c1"># Files</span>
+    <span class="n">csv_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_dir</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">csv_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No CSV files found in the source directory.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Validate CSV files if not already validated</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">already_validated</span><span class="p">:</span>
+        <span class="c1"># Validate CSV files</span>
+        <span class="n">all_files_valid</span> <span class="o">=</span> <span class="n">validate_csv_files</span><span class="p">(</span>
+            <span class="n">csv_files</span><span class="o">=</span><span class="n">csv_files</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>  <span class="c1"># Errors are saved in this directory, if any</span>
+            <span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">,</span>
+            <span class="n">early_exit_threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_files_valid</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Validation failed. Please fix the errors in the CSV files before proceeding.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping validation, assuming the CSV files are already validated.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Generate random objects</span>
+    <span class="n">random_physicians</span> <span class="o">=</span> <span class="p">[</span><span class="n">generate_random_physician</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_physicians</span><span class="p">)]</span>
+    <span class="n">random_hospital</span> <span class="o">=</span> <span class="n">generate_random_hospital</span><span class="p">()</span>
+
+    <span class="c1"># Task generator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_task_generator</span><span class="p">(</span><span class="n">csv_files</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Patient ID pool</span>
+        <span class="n">n_per_level</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">csv_files</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">lv1_ids</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">03</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">999</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_level</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">lv2_ids</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">03</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">999</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_level</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">lv3_ids</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">04</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">9999</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_level</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">patient_id_pool</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lv1</span><span class="si">}{</span><span class="n">lv2</span><span class="si">}{</span><span class="n">lv3</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">lv1</span><span class="p">,</span> <span class="n">lv2</span><span class="p">,</span> <span class="n">lv3</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">lv1_ids</span><span class="p">,</span> <span class="n">lv2_ids</span><span class="p">,</span> <span class="n">lv3_ids</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">patient_id_pool</span> <span class="o">=</span> <span class="n">patient_id_pool</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">csv_files</span><span class="p">)]</span>
+
+        <span class="c1"># Yield pairs of (csv_file, patient_id)</span>
+        <span class="k">for</span> <span class="n">csv_file</span><span class="p">,</span> <span class="n">patient_id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">csv_files</span><span class="p">,</span> <span class="n">patient_id_pool</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">csv_file</span><span class="p">,</span> <span class="n">patient_id</span>
+
+    <span class="n">task_generator</span> <span class="o">=</span> <span class="n">_task_generator</span><span class="p">(</span><span class="n">csv_files</span><span class="p">)</span>
+
+    <span class="c1"># Parse the validated CSV files</span>
+    <span class="n">ssmix_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;ssmixtwins&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">ssmix_root</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                <span class="n">parse_table</span><span class="p">,</span>
+                <span class="n">csv_file</span><span class="o">=</span><span class="n">csv_file</span><span class="p">,</span>
+                <span class="n">patient_id</span><span class="o">=</span><span class="n">patient_id</span><span class="p">,</span>
+                <span class="n">ssmix_root</span><span class="o">=</span><span class="n">ssmix_root</span><span class="p">,</span>
+                <span class="n">random_physicians</span><span class="o">=</span><span class="n">random_physicians</span><span class="p">,</span>
+                <span class="n">hospital</span><span class="o">=</span><span class="n">random_hospital</span><span class="p">,</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">csv_file</span><span class="p">,</span> <span class="n">patient_id</span> <span class="ow">in</span> <span class="n">task_generator</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Execute the futures</span>
+        <span class="n">n_generated</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">futures</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Parsing CSV files&quot;</span>
+        <span class="p">):</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+                <span class="n">n_generated</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SSMIX dataset creation completed!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The SSMIX root directory is: </span><span class="si">{</span><span class="n">ssmix_root</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="n">n_generated</span><span class="si">}</span><span class="s2"> patients in the root directory.&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yu Akagi, MD.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

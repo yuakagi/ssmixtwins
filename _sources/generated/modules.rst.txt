@@ -1,0 +1,7 @@
+ssmixtwins
+==========
+
+.. toctree::
+   :maxdepth: 4
+
+   ssmixtwins

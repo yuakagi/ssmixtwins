@@ -1,0 +1,170 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ssmixtwins package &mdash; ssmixtwins  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="元となるCSVファイルについて" href="../manual/source_data.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../manual/main_page.html">ssmixtwinsについて</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manual/tutorial.html">データ生成マニュアル(開発者用)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manual/source_data.html">元となるCSVデータ(開発者用)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ssmixtwins API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ssmixtwins.create_ssmix"><code class="docutils literal notranslate"><span class="pre">create_ssmix()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ssmixtwins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ssmixtwins package</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-ssmixtwins">
+<span id="ssmixtwins-package"></span><h1>ssmixtwins package<a class="headerlink" href="#module-ssmixtwins" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="ssmixtwins.create_ssmix">
+<span class="sig-prename descclassname"><span class="pre">ssmixtwins.</span></span><span class="sig-name descname"><span class="pre">create_ssmix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">already_validated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'iso2022_jp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_physicians</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/ssmixtwins/src/main.html#create_ssmix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssmixtwins.create_ssmix" title="Link to this definition"></a></dt>
+<dd><p>Create SSMIX dataset from CSV files.</p>
+<p>This function reads CSV files from the source directory, validates them, and generates SSMIX dataset files.
+The SSMIX root directory will be created as “&lt;output_dir&gt;/ssmixtwins”.
+First, this function validates all the CSV files in the source directory, which may take some time.
+If the CSV files are valid, it proceeds to parse the files and generate SSMIX dataset files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_dir</strong> (<em>str</em>) – <p>Directory containing CSV files.
+Each CSV file must be named as “&lt;start_age:integer from 0 to 120&gt;_&lt;patient sex: either M,F,U,O,or N&gt;_&lt;file_number&gt;.csv”.
+‘file_number’ is an optional number to avoid file name collision. This number is not used in the SSMIX data, therefore, it can be any thing.
+For example, “64_M_1a5d9f7892cd437fb6f9b22bba876dfa.csv”.
+Each file must contain a single patient data.
+Each table has columns as follows:</p>
+<blockquote>
+<div><ul>
+<li><p>”timestamp” (str): Timestamp of the event in “YYYYMMDDHHMMSSFFFFFF” format.</p></li>
+<li><p>”type” (int): The record type. 0 for admissions, 1 for discharges, 2 for outpatient visits, 3 for diagnoses, 4 for prescricription orders, 5 for injection orders, and 6 for laboratory tests.</p></li>
+<li><p>”text” (str): Textual description of the event (e.g., diagnosis name for diagnoses, medication name for prescription orders).</p></li>
+<li><p>”icd10” (str): ICD-10 code for the diagnosis (only for rows type==3, empty otherwise).</p></li>
+<li><p>”mdcdx2” (str): MDCDX2 code for the diagnosis (only for rows type==3, empty otherwise).</p></li>
+<li><p>”provisional” (str): “1” if the diagnosis is provisional. (only for rows type==3, empty otherwise).</p></li>
+<li><p>”hot” (str): HOT drug codes for prescription and injection orders (only for rows type==4 or 5, empty otherwise).</p></li>
+<li><p>”jlac10” (str): JLAC10 code for laboratory tests (only for rows type==6, empty otherwise).</p></li>
+<li><p>”lab_value” (str): Laboratory test value (only for rows type==6, empty otherwise).</p></li>
+<li><p>”unit” (str): Unit of the laboratory test value (only for rows type==6, empty otherwise).</p></li>
+<li><p>”discharge_disposition” (str): Discharge disposition code (only for rows type==1, empty otherwise).</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Directory to save the SSMIX dataset.
+The SSMIX root directory will be created as “&lt;output_dir&gt;/ssmixtwins”.
+Error files may be saved in this directory too.</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – Maximum number of workers for parallel processing.
+Default is 1, which means no parallel processing.
+Because this process takes a long time, it is recommended to set this to a higher value if you are processing many files.
+The appropriate value depends on your CPU and memory resources. Please set an appropriate value so that this does not overwhelm your system.
+For example, processing 1000 CSV files with 10 workers finishes in a short time.
+Setting this to one is ok, but it may take a long time to process many files.</p></li>
+<li><p><strong>already_validated</strong> (<em>bool</em>) – If True, skip validation of CSV files.
+This function first loads all CSV files in the source directory and validates them.
+The function proceeds only if the CSV files are valid.
+You can set this to True if you have already validated the CSV files and want to skip the validation step.</p></li>
+<li><p><strong>encoding</strong> (<em>str</em>) – Encoding to use when saving the files. Default is “iso2022_jp”.</p></li>
+<li><p><strong>n_physicians</strong> (<em>int</em>) – Number of random physicians to generate.
+Default is 30, and physicians are randomly selected from the randomly generated physicians throughout the generated data.
+The default value is usually sufficient, but you can increase or decrease this number if you want to.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../manual/source_data.html" class="btn btn-neutral float-left" title="元となるCSVファイルについて" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yu Akagi, MD.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
