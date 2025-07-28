@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>元となるCSVファイルについて &mdash; ssmixtwins  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ssmixtwins package" href="../generated/ssmixtwins.html" />
+    <link rel="prev" title="ssmixtwinsを使ったデータベースの生成マニュアル" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="main_page.html">ssmixtwinsについて</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">データ生成マニュアル(開発者用)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">元となるCSVデータ(開発者用)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">概要</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">CSVファイルの定義</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">CSVファイルの例</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/ssmixtwins.html">ssmixtwins API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ssmixtwins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">元となるCSVファイルについて</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="csv">
+<h1>元となるCSVファイルについて<a class="headerlink" href="#csv" title="Link to this heading"></a></h1>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#id1" id="id6">概要</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id7">CSVファイルの定義</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id8">CSVファイルの例</a></p></li>
+</ul>
+</nav>
+<section id="id1">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">概要</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<div class="line-block">
+<div class="line">このPythonパッケージは、入退院、処方オーダー、検体検査結果など最小限の臨床データをもとに、ダミーデータを追加し、SS-MIX2ストレージを構築します。</div>
+<div class="line">最小限の臨床データをご自身でご準備いただく必要があります。準備するデータは、下記のCSVファイル定義を満たしていればどのように準備されたものでも問題ありません。</div>
+<div class="line">例えば、実データを匿名加工したもの、手作業で作成したものなど、さまざまな方法で準備できます。目的に応じて、ふさわしいデータをご準備ください。</div>
+<div class="line">生成AIを用いてCSVファイルを準備することも可能です。例えばWatcher( <a class="reference external" href="https://github.com/yuakagi/Watcher">https://github.com/yuakagi/Watcher</a> )など、忠実度の高い医療データを生成できるAIモデルが公開されています。</div>
+</div>
+</section>
+<section id="id2">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">CSVファイルの定義</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>一つのCSVファイルに一人の患者のデータを格納してください。ファイル名は以下のように命名してください:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;患者の最初の年齢&gt;_&lt;性別:M/F&gt;_&lt;ファイル番号&gt;.csv
+</pre></div>
+</div>
+<p>ここで、&lt;患者の最初の年齢&gt;はデータの最初の診療日における患者の年齢を指し、0~120の整数値を指定してください。 性別は男性ならM、女性ならFを使用してください (そのほかに、O:その他、U:不明、A:両性具有、N:適応外、も使用可能です)。</p>
+<p>ファイル番号は、ファイル名の重複を避けるためのもので、どのような文字列でも問題ありません。ssmixtwinsのアプリケーション内で使用されることはありません。</p>
+<p>例えば、以下のようなファイル名になります:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>30_M_001.csv
+45_F_002.csv
+60_F_003.csv
+</pre></div>
+</div>
+<p>全てのCSVファイルは、同じディレクトリに配置してください。サブディレクトリを持っていても問題ありません。ssmixtwinsは、指定されたディレクトリ内の全てのCSVファイルを再帰的に読み込みます。</p>
+<p>次に、CSVファイルの内容を定義します。以下のコラムを持つCSVファイルを準備してください:</p>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">ベースとなる患者データ</span><a class="headerlink" href="#id4" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>コラム名</p></th>
+<th class="head"><p>データ型</p></th>
+<th class="head"><p>詳細</p></th>
+<th class="head"><p>備考</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>timestamp</p></td>
+<td><p>文字列</p></td>
+<td><p>YYYYMMDDHHMMSSFFFFFF形式(20桁)のタイムスタンプ</p></td>
+<td><p>ゼロ埋めで20桁にする。</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p>整数</p></td>
+<td><p>レコードの種別を表すための整数値</p></td>
+<td><p>0:入院, 1:退院, 2:診断, 3:処方オーダー, 4:注射オーダー, 6:検体検査結果</p></td>
+</tr>
+<tr class="row-even"><td><p>text</p></td>
+<td><p>文字列</p></td>
+<td><p>イベントのテキスト表現</p></td>
+<td><p>診断では病名、処方及び注射オーダーでは薬剤名、検体検査結果では検査項目名を格納し、そのほかの種別では空文字列。</p></td>
+</tr>
+<tr class="row-odd"><td><p>icd10</p></td>
+<td><p>文字列</p></td>
+<td><p>診断のICD-10コード</p></td>
+<td><p>type==3でのみ使用し、空欄も許容される。その他の行では空文字列。</p></td>
+</tr>
+<tr class="row-even"><td><p>mdcdx2</p></td>
+<td><p>文字列</p></td>
+<td><p>診断の病名管理番号(8桁)</p></td>
+<td><p>type==3でのみ使用し、空欄も許容される。その他の行では空文字列。</p></td>
+</tr>
+<tr class="row-odd"><td><p>provisional</p></td>
+<td><p>文字列</p></td>
+<td><p>疑い病名フラグ</p></td>
+<td><p>type==3の行のみ使用し、疑い病名の場合は’1’を、そうでない病名は空文字列。その他の行では空文字列。</p></td>
+</tr>
+<tr class="row-even"><td><p>hot</p></td>
+<td><p>文字列</p></td>
+<td><p>薬剤コードであるHOTコードを格納する。</p></td>
+<td><p>HOT7やHOT9など、桁数は問わない。type==4, 5の行で使用し、空欄も許容される。その他の行では空文字列。</p></td>
+</tr>
+<tr class="row-odd"><td><p>jlac10</p></td>
+<td><p>文字列</p></td>
+<td><p>検体検査のJLAC10コード(17桁,ハイフンなし)</p></td>
+<td><p>type==6の行ので必須。空欄は許容されれず、17桁である必要がある。その他の行では空文字列。</p></td>
+</tr>
+<tr class="row-even"><td><p>lab_value</p></td>
+<td><p>文字列</p></td>
+<td><p>検体検査の検査値</p></td>
+<td><p>単位を含まない検査値を格納する。type==6の行で必須であり、空欄は許容されない。その他の行では空文字列。</p></td>
+</tr>
+<tr class="row-odd"><td><p>unit</p></td>
+<td><p>文字列</p></td>
+<td><p>検体検査の単位</p></td>
+<td><p>type==6の行で使用し、空欄も許容される。その他の行では空文字列。</p></td>
+</tr>
+<tr class="row-even"><td><p>discharge_disposition</p></td>
+<td><p>文字列</p></td>
+<td><p>退院時の処置を表す文字列</p></td>
+<td><p>生存退院なら’01’、死亡退院なら’20’などの退院区分を表すコード。type==1の行で必須であり、空欄は許容されない。その他の行では空文字列。使用可能なコードはSSMIX-2ガイドラインの使用者定義表「0112-退院区分」を参照のこと。</p></td>
+</tr>
+</tbody>
+</table>
+<p>ここで、入院と退院は交互に出現する必要があります。例えば、入院が一度出現した後、退院レコードが出現する前にもう一度入院レコードが出現する場合、ssmixtwinsはエラーを出力します。</p>
+<p>コードに関しては、欠損が許容されている場合、欠損値としてそのままHL7メッセージに記録されるか、ssmixtoolsがランダムなローカルコードを割り振ります。</p>
+</section>
+<section id="id3">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">CSVファイルの例</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>以下は、CSVファイルの例です。各行は、患者の診療記録を表しています。</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">48_F_001.csv</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>timestamp</p></th>
+<th class="head"><p>type</p></th>
+<th class="head"><p>text</p></th>
+<th class="head"><p>icd10</p></th>
+<th class="head"><p>mdcdx2</p></th>
+<th class="head"><p>provisional</p></th>
+<th class="head"><p>hot</p></th>
+<th class="head"><p>jlac10</p></th>
+<th class="head"><p>lab_value</p></th>
+<th class="head"><p>unit</p></th>
+<th class="head"><p>discharge_disposition</p></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>20240101123000000000</p></td>
+<td><p>5</p></td>
+<td><p>白血球数</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>2A010000001930901</p></td>
+<td><p>12300</p></td>
+<td><p>/μL</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>20240101123000000000</p></td>
+<td><p>5</p></td>
+<td><p>赤血球数</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>2A020000001930901</p></td>
+<td><p>500×10^4</p></td>
+<td><p>/μL</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>20240101123000000000</p></td>
+<td><p>5</p></td>
+<td><p>C反応性蛋白(CRP)定量</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>5C070000002306201</p></td>
+<td><p>10.0</p></td>
+<td><p>mg/dL</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>20240101151700000000</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>20240101153100000000</p></td>
+<td><p>2</p></td>
+<td><p>急性肺炎</p></td>
+<td><p>J189</p></td>
+<td><p>20058577</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>20240101165500000000</p></td>
+<td><p>3</p></td>
+<td><p>アセトアミノフェン</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1163414010202</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>20240101165500000000</p></td>
+<td><p>4</p></td>
+<td><p>セフトリアキソンナトリウム静注用1g</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1198744010101</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>20240101165500000000</p></td>
+<td><p>4</p></td>
+<td><p>生理食塩水</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1076790020102</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>20240102093000000000</p></td>
+<td><p>5</p></td>
+<td><p>白血球数</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>2A010000001930901</p></td>
+<td><p>9000</p></td>
+<td><p>/μL</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>20240102093000000000</p></td>
+<td><p>5</p></td>
+<td><p>赤血球数</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>2A020000001930901</p></td>
+<td><p>480×10^4</p></td>
+<td><p>/μL</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>20240102093000000000</p></td>
+<td><p>5</p></td>
+<td><p>C反応性蛋白(CRP)定量</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>5C070000002306201</p></td>
+<td><p>8.0</p></td>
+<td><p>mg/dL</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>20240102100000000000</p></td>
+<td><p>4</p></td>
+<td><p>セフトリアキソンナトリウム静注用1g</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1198744010101</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>20240102100000000000</p></td>
+<td><p>4</p></td>
+<td><p>生理食塩水</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1076790020102</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>20240103093000000000</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>01</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>行数に制限はありません。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="ssmixtwinsを使ったデータベースの生成マニュアル" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../generated/ssmixtwins.html" class="btn btn-neutral float-right" title="ssmixtwins package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yu Akagi, MD.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

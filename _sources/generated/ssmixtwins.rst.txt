@@ -1,0 +1,7 @@
+ssmixtwins package
+==================
+
+.. automodule:: ssmixtwins
+   :members:
+   :undoc-members:
+   :show-inheritance:
