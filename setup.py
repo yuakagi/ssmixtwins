@@ -14,6 +14,9 @@ setup(
     description="Generates dummy HL7 messages for Japanese national standard.",
     author="Yu Akagi, MD",
     packages=find_packages(),
+    package_data={
+        "ssmixtwins.src.random_data": ["ja_postal_codes.json"],},
+    include_package_data=True,
     python_requires=">=3.8",
     install_requires=_get_requirements("requirements.txt"),
     license="MIT",

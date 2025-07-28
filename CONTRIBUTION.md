@@ -16,3 +16,9 @@
   Some constant segment fields can be safely validated at segment levels (e.g., MSH, PID, PV1).
 
 - All ways make sure to allow empty strings ("") for optional fields upon validation.
+
+- Occasionally, you may need to use '""' (double quotes) as a string value.
+  This is not an empty string, but a visible "". It is used for HL7 fields that are requried, but the value is hard to determine. This practice is officially documented for some parts of SS-MIX2.
+  For example, in RXE-3 (minimum_dose), if the minimum dose is hard to determine (e.g., ointment), it should be '""', not an empty string because RXE-3 is a required field.
+  Be careful, you sometimes encounter '""' in the code.
+  Consider this as the official fallback. Do not use this on your own discretion.

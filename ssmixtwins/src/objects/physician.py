@@ -76,6 +76,9 @@ def generate_random_physician() -> Physician:
     physician_last_name = last_name_pair[0]
     physician_last_name_kana = last_name_pair[1]
     physician_last_name_roman = last_name_pair[2]
+    physician_last_name = f"仮{physician_first_name}"  # Prefix with "仮"
+    physician_last_name_kana = f"カリ{physician_first_name_kana}"  # Prefix with "カリ"
+
     # NOTE: The physician ID is a random 10-digit number.
     #   Collision is not checked, although it is unlikely to happen in practice.
     physician_id = str(

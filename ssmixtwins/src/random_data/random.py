@@ -1,3 +1,14 @@
+
+import os
+import json
+
+# Postal codes
+# NOTE: This file is loaded from a JSON file containing postal codes. Make sure you specify this in setup.py
+JA_POSTAL_CODES = None
+with open(os.path.join(os.path.dirname(__file__), "ja_postal_codes.json"), "r", encoding="utf-8") as f:
+    JA_POSTAL_CODES = json.load(f)
+
+# ABO blood types
 RANDOM_ABO_BLOOD_TYPES = {
     "choices": ["A", "B", "AB", "O", ""],
     "weights": [0.4, 0.3, 0.1, 0.2, 0.0],  # Weights for ABO blood types

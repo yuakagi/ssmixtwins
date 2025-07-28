@@ -239,6 +239,7 @@ def update_rde_o11_prescription_orders(
         dispense_unit_code=prescription_order.dispense_unit_code,
         dispense_unit_name=dispense_unit_name,
         dispense_unit_code_system=dispense_unit_code_system,
+        tota_daily_dose=prescription_order.total_daily_dose,
         prescription_number=prescription_order.prescription_number,
         outpatient_department_code=prescription_order.requester.department_code,
         admission=admission,

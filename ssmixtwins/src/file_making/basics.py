@@ -38,7 +38,7 @@ def generate_file_name(
     Returns:
         str: The generated file name.
     """
-    return f"{patient_id}_{date}_{data_type}_{requester_order_number}_{message_time}_{department_code}_{condition_flag}.txt"
+    return f"{patient_id}_{date}_{data_type}_{requester_order_number}_{message_time}_{department_code}_{condition_flag}"
 
 
 def generate_file_path(

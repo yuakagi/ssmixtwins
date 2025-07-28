@@ -23,6 +23,7 @@ def generate_rxe(
     dose_unit_name: str,
     dose_unit_code_system: str,
     dosage_form_code: str,  # Use merit_9_3 if you use this field.
+    tota_daily_dose: str,
     dispense_amount: str,
     dispense_unit_code: str,
     dispense_unit_name: str,
@@ -42,8 +43,10 @@ def generate_rxe(
         drug_name (str): The name of the drug, e.g., "アレピアチン１０倍散".
         drug_code_system (str): The code system for the drug, e.g., "HOT9".
         minimum_dose (str): The minimum dose of the drug, e.g., "50".
-            For injections, this is water volume, not the drug itself. If water volume is not applicable, use "".
+            For injections, this is water volume, not the drug itself.
+            If this valu is not applicable, use '""'. This is not an empty string, but a visible "". Be careful.
         dose_unit_code (str): The code for the dose unit, e.g., "MG".
+            If minimum_dose is '""', then this value should also be '""'.
         dose_unit_name (str): The name of the dose unit, e.g., "ミリグラム".
         dose_unit_code_system (str): The code system for the dose unit, e.g., "MR9P".
         dosage_form_code (str): The dosage form of the drug, e.g., "PWD^散剤^MR9P". Use merit_9_3.
@@ -69,15 +72,33 @@ def generate_rxe(
     # Dose unit
     # NOTE: MR9P is recommended, but it may be difficult to implement. So validation is skipped here.
     #       For injections, you can use ISO+, like ml^ml^ISO+.
-    dose_unit_full = f"{dose_unit_code}^{dose_unit_name}^{dose_unit_code_system}"
-    dispence_unit_full = (
-        f"{dispense_unit_code}^{dispense_unit_name}^{dispense_unit_code_system}"
-    )
+    if dose_unit_code == '""':
+        # NOTE: This value '""' is for drugs whose dose units are hard to define, like ointments.
+        dose_unit_full = '""'  # <- Not empty string, but visible "".
+    else:
+        dose_unit_full = f"{dose_unit_code}^{dose_unit_name}^{dose_unit_code_system}"
+
+    if (
+        (dispense_unit_code != "")
+        or (dispense_unit_name != "")
+        or (dispense_unit_code_system != "")
+    ):
+        dispence_unit_full = (
+            f"{dispense_unit_code}^{dispense_unit_name}^{dispense_unit_code_system}"
+        )
+    else:
+        dispence_unit_full = ""
     # Dosage form
     if dosage_form_code != "":
         dosage_form_full = f"{dosage_form_code}^{merit_9_3[dosage_form_code]}^MR9P"
     else:
         dosage_form_full = ""
+    # Total daily dose
+    if tota_daily_dose != "":
+        # NOTE: Here, we use unit codes from dispence unit.
+        tota_daily_dose_full = f"{tota_daily_dose}^{dispense_unit_code}&{dispense_unit_name}&{dispense_unit_code_system}"
+    else:
+        tota_daily_dose_full = ""
     # Delivery place
     if admission is not None:
         # Inpatient
@@ -91,8 +112,12 @@ def generate_rxe(
         0: "RXE",
         1: "",
         2: drug_full,
+        # NOTE: Minimum doses should not be defined for drugs whose minimum doses are hard to define, like ointments.
+        # But, because this RXE-3 is requried, you must set '""' for these drugs.
+        # '""' is NOT empty string, it must be visble "". So, in python, you must use '""' not "".
         3: minimum_dose,
         4: "",  # Omitted for simplicity
+        # NOTE: If minimum_dose is '""', then this field should also be '""'.
         5: dose_unit_full,
         6: dosage_form_full,
         7: "",  # Omitted for simplicity
@@ -107,7 +132,7 @@ def generate_rxe(
         16: "",  # Omitted for simplicity
         17: "",  # Omitted for simplicity
         18: "",  # Omitted for simplicity
-        19: "",  # Omitted for simplicity
+        19: tota_daily_dose_full,
         20: "",
         21: "",  # Omitted for simplicity
         22: "",  # Omitted for simplicity

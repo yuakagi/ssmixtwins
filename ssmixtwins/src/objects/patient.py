@@ -9,6 +9,8 @@ from ..utils import (
     format_timestamp,
     normalize_and_validate_postal_code,
     to_datetime_anything,
+    generate_random_address,
+    generate_random_phone,
 )
 from ..tables import udt_0001, jhsd_0001, jhsd_0001_ext, jhsd_0002, udt_0063, udt_0127
 from ..config import BASE_TIMESTAMP_FORMAT
@@ -401,9 +403,10 @@ def generate_random_patient(
     patient_last_name = last_name_pair[0]
     patient_last_name_kana = last_name_pair[1]
     patient_last_name_roman = last_name_pair[2]
+    patient_last_name = f"仮{patient_first_name}" # Add a prefix
+    patient_last_name_kana = f"カリ{patient_first_name_kana}" # Add a prefix
+
     # Address
-    # NOTE: Avoiding fake.address() to control address details
-    patient_postal_code = fake.postcode()
     if random.random() < 0.5:
         # 50% Tokyo, because the hospital is located near Tokyo (See random hospital)
         prefecture = "東京都"  # Fixed
@@ -414,20 +417,16 @@ def generate_random_patient(
         )
     else:
         # Otherwise random
-        prefecture = fake.administrative_unit()
-    city = fake.city()  # Random city kile '横浜市港北区'
-    town = fake.town()  #  Random town like '芝公園'
-    chome = fake.chome()  # Random chome like '25丁目'
-    ban = fake.ban()  # Random ban like '13番'
-    gou = fake.gou()  # Random gou like '1号'
-    patient_address = f"{prefecture}{city}{town}{chome}{ban}{gou}"
-    if random.random() < 0.5:
-        # Add building name and number 50% of the time
-        building_name = fake.building_name()
-        building_number = fake.building_number()
-        patient_address += f" {building_name}{building_number}"
+        prefecture = None 
+    patient_address, patient_postal_code = generate_random_address(
+        fake, 
+        # Use a selected one or random
+        prefecture=prefecture, 
+        # 50% chance of adding building name
+        add_building_name=random.random() < 0.5
+    )
     # Phone numbers
-    home_phone = fake.phone_number()
+    home_phone = generate_random_phone(prefix="099")
     # Work place
     if age < 16:
         is_working = False
@@ -439,7 +438,7 @@ def generate_random_patient(
         is_working = random.random() < 0.4  # 40% chance
     if is_working:
         work_place = fake.company()
-        work_phone = fake.phone_number()
+        work_phone = generate_random_phone(prefix="099")
     else:
         work_place = ""
         work_phone = ""

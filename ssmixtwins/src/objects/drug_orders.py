@@ -7,11 +7,11 @@ from typing import Literal
 from datetime import timedelta
 from .physician import Physician
 from ..tables import h7t_0119, merit_9_3, merit_9_4, udt_0162, jhsi_0002, udt_0164
-from ..utils import format_timestamp, generate_random_timedelta, to_datetime_anything
+from ..utils import format_timestamp, to_datetime_anything
 from ..random_data import (
-    NAME_TO_PRESCRIPTION_UNIT,
     NAME_TO_DOSE_FORM,
     NAME_TO_PRESCRIPTION_ROUTE,
+    ROUTE_TO_PRESC_REPEST_PATTERNS,
 )
 from ..config import BASE_TIMESTAMP_FORMAT
 
@@ -29,6 +29,7 @@ class PrescriptionOrder:
         dose_unit_code: str,  # R, use 'MERIT-9 処方オーダ 表 4 単位略号'
         dosage_form_code: str,  # R, use 'MERIT-9 処方オーダ 表 3 剤形略号'
         minimum_dose: str,  # R, NM
+        total_daily_dose: str,
         dispense_amount: str,  # R
         dispense_unit_code: str,  # R, use 'MERIT-9 処方オーダ 表 4 単位略号'
         prescription_number: str,
@@ -97,12 +98,21 @@ class PrescriptionOrder:
             len(drug_code) + len(drug_name) + len(drug_code_system) < 230
         ), f"drug_code, drug_name, and drug_code_system combined must be less than 230 characters, got {len(drug_code)+len(drug_name)+len(drug_code_system)}."
         assert minimum_dose != "", "minimum_dose must not be empty."
-        assert (
-            minimum_dose.isdigit() and len(minimum_dose) <= 20
-        ), f"minimum_dose must be a digit and less than 20 characters, got '{minimum_dose}'."
-        assert (
-            dose_unit_code in merit_9_4
-        ), f"dose_unit_code must be one of {list(merit_9_4.keys())}, got '{dose_unit_code}'."
+        # NOTE: Minimum dose can be empty for drugs whose minimum doses are hard to define (e.g., ointment).
+        # But because RXE-3 is required, you must set something. Therefore, JAHIS制定標準 recommends to use '""' as a placeholder.
+        # In this case, you must set '""' (not empty string!!!, be careful!) to this field.
+        if minimum_dose != '""':  # <- NOT empty string, but '""' (double quotes)
+            assert (
+                minimum_dose.isdigit() and len(minimum_dose) <= 20
+            ), f"minimum_dose must be a digit and less than 20 characters, got '{minimum_dose}'."
+        # NOTE: RXE-5 (dose unit) is required, but in case RXE-3 is '""' (unspecified), then you must not specify RXE-5 too.
+        # In this case, REX-5 is also '""'. But because REX-5 is deteermined by combination of dose_unit_code + dose_unit_name + dose_unit_code_system,
+        # it is a bit complicated. Here, we set dose_unit_full to '""'. Then, let `generate_rxe()` to handle the final RXE-5 value.
+        assert dose_unit_code != "", "dose_unit_code must not be empty."
+        if dose_unit_code != '""':  # <- NOT empty string, but '""' (double quotes)
+            assert (
+                dose_unit_code in merit_9_4
+            ), f"dose_unit_code must be one of {list(merit_9_4.keys())}, got '{dose_unit_code}'."
         assert dosage_form_code == "" or (
             dosage_form_code in merit_9_3
         ), f"dosage_form_code must be one of {list(merit_9_3.keys())}, got '{dosage_form_code}'."
@@ -114,6 +124,8 @@ class PrescriptionOrder:
         assert (
             dispense_unit_code in merit_9_4
         ), f"dispense_unit_code must be one of {list(merit_9_4.keys())}, got '{dispense_unit_code}'."
+        if total_daily_dose != "":  # RXE-19
+            assert dispense_amount.isdigit(), "total_daily_dose must be a digit."
         # NOTE; Prescription number is actually REQUIRED, even if the table says 'O' (optional). Tricky.
         assert prescription_number != "", "prescription_number must not be empty."
         assert (
@@ -171,7 +183,6 @@ class PrescriptionOrder:
         requester_group_number = "_".join(
             [requester_order_number, recipe_number, order_admin_number]
         )
-
         # Timestamps
         transaction_time = format_timestamp(
             transaction_time, format="YYYYMMDDHHMMSS", allow_null=True
@@ -196,6 +207,7 @@ class PrescriptionOrder:
         self.minimum_dose = minimum_dose
         self.dispense_amount = dispense_amount
         self.dispense_unit_code = dispense_unit_code
+        self.total_daily_dose = total_daily_dose
         self.prescription_number = prescription_number
         self.repeat_pattern_code = repeat_pattern_code
         self.repeat_pattern_name = repeat_pattern_name
@@ -292,6 +304,7 @@ class InjectionOrder:
         dispense_unit_code: str,  # R, use merit_9_4 or ISO+
         dispense_unit_name: str,
         dispense_unit_code_system: str,
+        total_daily_dose: str,  # Optional, total daily dose, e.g., 2400
         prescription_number: str,
         repeat_pattern_code: str,
         repeat_pattern_name: str,
@@ -370,9 +383,10 @@ class InjectionOrder:
             injection_type_code in jhsi_0002
         ), f"injection_type_code must be one of {list(jhsi_0002.keys())}, got '{injection_type_code}'."
         assert minimum_dose != "", "minimum_dose must not be empty."
-        assert (
-            minimum_dose.isdigit() and len(minimum_dose) <= 20
-        ), f"minimum_dose must be a digit and less than 20 characters, got '{minimum_dose}'."
+        if minimum_dose != '""':  # <- NOT empty string, but '""' (double quotes)
+            assert (
+                minimum_dose.isdigit() and len(minimum_dose) <= 20
+            ), f"minimum_dose must be a digit and less than 20 characters, got '{minimum_dose}'."
         # NOTE: For prescription orders, dose_unit_code is ensured to be in merit_9_4, but, because injection order may use ISO+,
         #       , we allow using codes not in merit_9_4.
         # NOTE: Implement ISO+ here if needed. Currently, we do not implement ISO+ because its list is too extensive.
@@ -406,6 +420,8 @@ class InjectionOrder:
             assert (
                 dispense_unit_code_system == ""
             ), "dispense_unit_code_system must not be provided if dispense_amount is not provided."
+        if total_daily_dose != "":
+            assert total_daily_dose.isdigit(), "total_daily_dose must be a digit."
         # Prescriotion number is REQUIRED.
         assert prescription_number != "", "prescription_number must not be empty."
         assert (
@@ -547,53 +563,6 @@ def generate_random_prescription_order(
     # Timestamps
     order_effective_time = transaction_time  # Use transaction time as effective time
 
-    # Unit
-    dose_unit_code = "DOSE"  # Set default first (~回分)
-    for k, v in NAME_TO_PRESCRIPTION_UNIT.items():
-        for value in v:
-            if value in drug_name:
-                dose_unit_code = k
-                break
-        if dose_unit_code != "DOSE":
-            break
-    dose_unit_name = merit_9_4[dose_unit_code]
-    dose_unit_code_system = "MR9P"
-    # Dose form
-    dosage_form_code = ""  # Set default (null)
-    for k, v in NAME_TO_DOSE_FORM.items():
-        for value in v:
-            if value in drug_name:
-                dosage_form_code = k
-                break
-        if dosage_form_code != "":
-            break
-    # Dispense
-    # NOTE: For simplicity, we use dose_unit_code
-    dispense_unit_code = dose_unit_code
-    dispense_amount = str(random.randint(1, 20))  # Random 1 ~ 20
-    # Minimum dose
-    minimum_dose = "1"
-    # Repeat pattern
-    # NOTE: Chose from some patterns randomly, may be inconsistent with the dose units
-    if random.random() <= 0.5:
-        repeat_pattern_code = "1013044400000000"
-        repeat_pattern_name = "内服・経口・１日３回朝昼夕食後"
-        repeat_pattern_code_system = "JAMISDP01"
-    else:
-        repeat_pattern_code = "1012040400000000"
-        repeat_pattern_name = "内服・経口・１日２回朝夕食後"
-        repeat_pattern_code_system = "JAMISDP01"
-    # Duration in days:
-    # NOTE: Dispense amount and duration x repeat pattern display inconsistensy.
-    if is_admitted:
-        duration_in_days = random.choice(["7", "30", "60", "90"])
-    else:
-        duration_in_days = str(random.randint(1, 7))
-    # Total occurence
-    if dose_unit_code == "DOSE":
-        total_occurrences = dispense_amount
-    else:
-        total_occurrences = ""
     # Route
     route_code = "OTH"  # Set default, 'others'
     for k, v in NAME_TO_PRESCRIPTION_ROUTE.items():
@@ -604,6 +573,71 @@ def generate_random_prescription_order(
         if route_code != "OTH":
             break
 
+    # Repeat pattern
+    random_repeat_all_sets = ROUTE_TO_PRESC_REPEST_PATTERNS[route_code]
+    random_repeat_set = random.choice(random_repeat_all_sets)
+    repeat_pattern_code = random_repeat_set["repeat_pattern_code"]
+    repeat_pattern_name = random_repeat_set["repeat_pattern_name"]
+    repeat_pattern_code_system = random_repeat_set["repeat_pattern_code_system"]
+    daily_dose = int(random_repeat_set["daily_dose"])
+    # NOTE: daily_dose x minimum_dose = total_daily_dose
+
+    # Dose form & dose unit & dispense unit
+    dosage_form_code = ""  # Set default (null)
+    dose_unit_code = "DOSE"  # Set default first (~回分)
+    dispense_unit_code = "DOSE"  # Also set default first (~回分)
+    for k, v in NAME_TO_DOSE_FORM.items():
+        kws = v["keywords"]
+        for kw in kws:
+            if kw in drug_name:
+                dosage_form_code = k
+                dose_unit_code = v["dose_unit_code"]
+                dispense_unit_code = v["dispense_unit_code"]
+                break
+        if dosage_form_code != "":
+            break
+    dose_unit_name = merit_9_4[dose_unit_code]
+    dose_unit_code_system = "MR9P"
+
+    # Minimum dose
+    # NOTE: If the minimum dose is hard to define, set it to '""' (double quotes).
+    if dose_unit_code == '""':
+        # For drug forms like ointment etc.
+        minimum_dose = (
+            '""'  # <- Note: This is not empty string, but '""' (double quotes)
+        )
+    else:
+        minimum_dose = str(random.randint(1, 3))  # Random 1 ~ 3
+
+    # Duration in days:
+    if is_admitted:
+        duration_in_days = str(random.randint(1, 7))
+    else:
+        duration_in_days = random.choice(["7", "30", "60", "90"])
+
+    # Dispense amount
+    if minimum_dose == '""':
+        # e.g., 1本, 3個, etc.
+        dispense_amount = str(random.randint(1, 5))
+    else:
+        dispense_amount = str(
+            int(minimum_dose) * daily_dose * int(duration_in_days)
+        )  # e.g., 1回2錠 x 1日3回 x 7日分 = 42錠
+
+    # Total daily dose
+    if minimum_dose != '""':
+        total_daily_dose = str(
+            int(minimum_dose) * daily_dose
+        )  # e.g., 1回2錠 x 1日3回 = 6錠
+    else:
+        total_daily_dose = ""  # Simply, empty
+
+    # Total occurence　(総合の処方回数、例えば疼痛時 10回分などでは10)
+    if dose_unit_code == "DOSE":
+        total_occurrences = dispense_amount
+    else:
+        total_occurrences = ""
+
     order = PrescriptionOrder(
         drug_code=drug_code,
         drug_name=drug_name,
@@ -613,6 +647,7 @@ def generate_random_prescription_order(
         minimum_dose=minimum_dose,
         dispense_amount=dispense_amount,
         dispense_unit_code=dispense_unit_code,
+        total_daily_dose=total_daily_dose,
         prescription_number=prescription_number,
         repeat_pattern_code=repeat_pattern_code,
         repeat_pattern_name=repeat_pattern_name,
@@ -646,6 +681,7 @@ def generate_random_injection_component(
     Generates a random injection component for testing purposes.
     """
     # Component type
+    # TODO: Add more keywords if needed.
     base_kws = [
         "生食",
         "生理食塩",

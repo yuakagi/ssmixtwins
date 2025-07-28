@@ -1,15 +1,3 @@
-merit_9_3 = {
-    "TAB": "錠剤",
-    "CAP": "カプセル剤",
-    "PWD": "散剤、ドライシロップ剤",
-    "SYR": "シロップ剤",
-    "SUP": "坐剤",
-    "LQD": "液剤",
-    "OIT": "軟膏、ゲル",
-    "CRM": "クリーム",
-    "TPE": "テープ、貼付剤",
-    "INJ": "注射剤",
-}
 presc_keywords = [
     "錠",
     "カプセル",
@@ -40,55 +28,6 @@ presc_keywords = [
     "内用",
 ]
 
-udt_0162 = {
-    "AP": "外用",
-    "MM": "粘膜",
-    "B": "頬",
-    "NS": "鼻側",
-    "DT": "歯",
-    "NG": "経口径内腔",
-    "EP": "硬膜外",
-    "NP": "鼻のプロング",
-    "ET": "気管内チューブ",
-    "NT": "鼻気管内チューブ",
-    "GTT": "消化器官",
-    "OP": "眼",
-    "GU": "GU 洗浄",
-    "OT": "耳",
-    "IMR": "浸透",
-    "OTH": "その他／さまざま",
-    "IA": "動脈内",
-    "PF": "灌流",
-    "IB": "滑液包内",
-    "PO": "口",
-    "IC": "心臓内",
-    "PR": "直腸",
-    "ICV": "子宮",
-    "RM": "リブリーザーマスク",
-    "ID": "皮膚内",
-    "SD": "湿性包帯",
-    "IH": "吸入",
-    "SC": "皮下",
-    "IHA": "肝内動脈",
-    "SL": "舌下",
-    "IM": "筋肉内",
-    "TP": "局所",
-    "IN": "鼻腔内",
-    "TRA": "気管切開",
-    "IO": "眼内",
-    "TD": "経皮性",
-    "IP": "腹腔内",
-    "TL": "経舌",
-    "IS": "滑液包内",
-    "UR": "尿道",
-    "IT": "鞘内",
-    "VG": "膣",
-    "IU": "子宮内",
-    "VM": "換気マスク",
-    "IV": "静脈内",
-    "WND": "創傷",
-    "MTH": "口／喉",
-}
 # Codes compatible with merit_9_4
 NAME_TO_PRESCRIPTION_UNIT = {
     # 錠
@@ -109,21 +48,63 @@ NAME_TO_PRESCRIPTION_UNIT = {
 }
 
 # For prescription only
+# NOTE: Units are selected from merit_9_4
 NAME_TO_DOSE_FORM = {
-    "TAB": ["錠"],
-    "CAP": ["カプセル", "Cap", "cap"],
-    "PWD": ["散", "原末", "粉末", "顆粒"],
-    "SYR": ["シロップ"],
-    "SUP": ["坐"],
-    "LQD": ["液"],
-    "OIT": ["膏"],
-    "CRM": ["クリーム"],
-    "TPE": ["テープ", "貼付", "パッチ"],
-    "INJ": ["注"],
+    "TAB": {
+        "keywords": ["錠"],
+        "dose_unit_code": "TAB",
+        "dispense_unit_code": "TAB",
+    },
+    "CAP": {
+        "keywords": ["カプセル", "Cap", "cap"],
+        "dose_unit_code": "CAP",
+        "dispense_unit_code": "CAP",
+    },
+    "PWD": {
+        "keywords": ["散", "原末", "粉末", "顆粒"],
+        "dose_unit_code": "PAC",
+        "dispense_unit_code": "PAC",
+    },
+    "SYR": {
+        "keywords": ["シロップ"],
+        "dose_unit_code": "DOSE",  # 〜回分
+        "dispense_unit_code": "DOSE",
+    },
+    "SUP": {
+        "keywords": ["坐"],
+        "dose_unit_code": "KO",  # 個
+        "dispense_unit_code": "KO",
+    },
+    "OIT": {
+        "keywords": ["膏"],
+        "dose_unit_code": '""',  # Ointment dose unit is hard to define, so use '""'.
+        "dispense_unit_code": "HON",
+    },
+    "CRM": {
+        "keywords": ["クリーム"],
+        "dose_unit_code": '""',
+        "dispense_unit_code": "HON",
+    },
+    "TPE": {
+        "keywords": ["テープ", "貼付", "パッチ"],
+        "dose_unit_code": "SHT",  # 枚
+        "dispense_unit_code": "SHT",
+    },
+    "LQD": {
+        "keywords": ["うがい液"],
+        "dose_unit_code": '""',
+        "dispense_unit_code": "HON",
+    },
+    "INJ": {
+        "keywords": ["注"],
+        "dose_unit_code": '""',
+        "dispense_unit_code": "HON",
+    },
 }
 
+
 # Compatible with udt_0162
-# NOTE: その他 is 'OTH'
+# NOTE: その他 is 'OTH'. The order matters!!. The program serches for the first match.
 NAME_TO_PRESCRIPTION_ROUTE = {
     "AP": ["膏", "クリーム"],
     "PR": ["坐"],
@@ -153,4 +134,134 @@ NAME_TO_PRESCRIPTION_ROUTE = {
 NAME_TO_INJECTION_TYPE = {
     "00": "一般",
     "01": ["血小板", "凍結血漿", "赤血球"],  # "血液製剤",
+}
+
+# Random prescription repeat pattern forms
+ROUTE_TO_PRESC_REPEST_PATTERNS = {
+    # NOTE: daily_dose x minimum_dose = total_daily_dose
+    # NOTE: Drugs without fixed minumu_dose (e.g., ointment) must not use total_daily_dose (RXE-3) and dose_unit (RXE-5).
+    #       Therefore, ignore daily_dose for these drugs.
+    # Oral route (The second number in the 16 digits is '0' for oral)
+    "PO": [
+        {
+            "repeat_pattern_code": "1011040000000000",
+            "repeat_pattern_name": "内服・経口・１日１回朝食後",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        },
+        {
+            "repeat_pattern_code": "1012040400000000",
+            "repeat_pattern_name": "内服・経口・１日２回朝夕食後",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "2",
+        },
+        {
+            "repeat_pattern_code": "1013044400000000",
+            "repeat_pattern_name": "内服・経口・１日３回朝昼夕食後",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "3",
+        },
+    ],
+    # Sublingual route (The second number in the 16 digits is '1' for sublingual)
+    "SL": [
+        {
+            "repeat_pattern_code": "1111040000000000",
+            "repeat_pattern_name": "内服・舌下・１日１回朝食後",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        }
+    ],
+    # Transvaginal route (The second number in the 16 digits is 'T' for vaginal)
+    "VG": [
+        {
+            "repeat_pattern_code": "2T71000000000000",
+            "repeat_pattern_name": "外用・経膣・１日１回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        }
+    ],
+    # 　Inhalation route (The second number in the 16 digits is 'L' for inhalation)
+    "IH": [
+        {
+            "repeat_pattern_code": "2L71000000000000",
+            "repeat_pattern_name": "外用・吸入・１日１回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        },
+        {
+            "repeat_pattern_code": "2L72000000000000",
+            "repeat_pattern_name": "外用・吸入・１日２回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "2",
+        },
+    ],
+    # Ocular route (The second number in the 16 digits is 'O' for ocular)
+    "OT": [
+        {
+            "repeat_pattern_code": "2G71000000000000",
+            "repeat_pattern_name": "外用・点耳・１日１回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        },
+        {
+            "repeat_pattern_code": "2G72000000000000",
+            "repeat_pattern_name": "外用・点耳・１日２回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "2",
+        },
+    ],
+    # Ophthalmic route (The second number in the 16 digits is 'H' for ophthalmic)
+    "OP": [
+        {
+            "repeat_pattern_code": "2H71000000000000",
+            "repeat_pattern_name": "外用・点眼・１日１回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        },
+        {
+            "repeat_pattern_code": "2H72000000000000",
+            "repeat_pattern_name": "外用・点眼・１日２回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "2",
+        },
+    ],
+    # Rectal route (The second number in the 16 digits is 'R' for rectal)
+    "PR": [
+        {
+            "repeat_pattern_code": "2R71000000000000",
+            "repeat_pattern_name": "外用・肛門挿入・１日１回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        },
+        {
+            "repeat_pattern_code": "2R72000000000000",
+            "repeat_pattern_name": "外用・肛門挿入・１日２回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "2",
+        },
+    ],
+    # Transdermal route (NOTE: We use local codes for this because 'AP' can be mapped to several JAMISDP01 codes.)
+    "AP": [
+        {
+            "repeat_pattern_code": "9999000000000000",
+            "repeat_pattern_name": "外用・１日１回",
+            "repeat_pattern_code_system": "99xyz",
+            "daily_dose": "1",
+        },
+        {
+            "repeat_pattern_code": "9999000000000000",
+            "repeat_pattern_name": "外用・１日２回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "2",
+        },
+    ],
+    # Subcutaneous route (The second number in the 16 digits is '2' for subcutaneous)
+    "SC": [
+        {
+            "repeat_pattern_code": "3271000000000012",
+            "repeat_pattern_name": "注射・皮下・１日１回",
+            "repeat_pattern_code_system": "JAMISDP01",
+            "daily_dose": "1",
+        }
+    ],
 }

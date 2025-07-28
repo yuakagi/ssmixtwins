@@ -1,6 +1,6 @@
 import random
 from faker import Faker
-from ..utils import normalize_and_validate_postal_code
+from ..utils import normalize_and_validate_postal_code, generate_random_address, generate_random_phone
 
 
 class Hospital:
@@ -61,18 +61,13 @@ def generate_random_hospital() -> Hospital:
     # NOTE: We do not use fake.adress() to avoid including building names like 'パーク上野公園565'.
     hospital_name = "日本医療情報推進病院"  # Fixed hospital name for consistency
     prefecture = random.choice(["東京都", "埼玉県"])
-    if prefecture == "埼玉県":
-        random.choice(["川口市", "さいたま市"])
-    city = fake.city()  # Random city kile '横浜市港北区'
-    town = fake.town()  #  Random town like '芝公園'
-    chome = fake.chome()  # Random chome like '25丁目'
-    ban = fake.ban()  # Random ban like '13番'
-    gou = fake.gou()  # Random gou like '1号'
-    # Construct the hospital address
-    hospital_address = f"{prefecture}{city}{town}{chome}{ban}{gou}"
-    # Normalize and validate the postal code
-    hospital_postal_code = fake.postcode()
-    hospital_phone = fake.phone_number()
+    hospital_address, hospital_postal_code = generate_random_address(
+        fake, prefecture=prefecture,
+        # Hospital addresses do not have building names
+        add_building_name=False
+    )
+    # Phone number
+    hospital_phone = generate_random_phone(prefix="099")  # Random phone number with a prefix
 
     # Return the hospital attributes
     hospital = Hospital(

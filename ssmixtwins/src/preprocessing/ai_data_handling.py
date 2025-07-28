@@ -476,6 +476,7 @@ def clean_base_table(
     atc_to_hot_map: pd.DataFrame,  # Should have columns ['atc', 'hot', 'text']
     yj_to_hot_map: pd.DataFrame,  # Should have columns ['yj', 'hot', 'text']
     jlac10_segment_map: pd.DataFrame,  # Should have columns ['jlac10', 'text']
+    end_date: str=None,  # YYYYMMDD
     presc_type: int = 4,  # 4 is for prescriptions
     injec_type: int = 5,  # 5 is for injections
     # NOTE: Type below is the type numbers used in the AI-generated data.
@@ -631,6 +632,12 @@ def clean_base_table(
         ]
     ]
 
+    # ⏱ Truncate all future data
+    if end_date is not None:
+        end_datetime = to_datetime_anything(end_date)
+        end_datetime += pd.Timedelta(days=1)  # Include the end date
+        df = df[df["timestamp"] < end_datetime].reset_index(drop=True)
+
     # Save file (File name: {start_age}_{sex}.csv)
     if len(df) == 0:
         print(
@@ -681,7 +688,29 @@ def prepare_csv_from_ai_data(
     yj_to_hot_map_path: str,
     jlac10_segment_map_path: str,
     mak_workers: int = 1,
+    end_date: str = None, # YYYYMMDD, all data beyond this date will be removed
 ):
+    """Prepares CSV files from AI-generated data.
+    
+    Args:
+        file_pattern (str): Pattern to match AI-generated data files.
+        output_dir (str): Directory to save the cleaned CSV files.
+        period_start (str): Start date for the timeline to start, in YYYYMMDD format.
+        period_end (str): End date for the timeline to start, in YYYYMMDD format.
+        icd10_to_mdcdx2_map_path (str): Path to the ICD10 to MDCDX2 mapping file.
+        atc_to_yj_map_path (str): Path to the ATC to YJ mapping file.
+        atc_to_hot_map_path (str): Path to the ATC to HOT mapping file.
+        yj_to_hot_map_path (str): Path to the YJ to HOT mapping file.
+        jlac10_segment_map_path (str): Path to the JLAC10 segment mapping file.
+        mak_workers (int): Number of parallel workers to use for processing.
+        end_date (str): End date for the data to be processed, in YYYYMMDD format.
+            If None, no end date is applied.
+
+    Returns:
+        None: The function saves cleaned CSV files to the specified output directory.
+    """
+
+
     if not os.path.exists(output_dir):
         raise FileNotFoundError(
             f"Output directory {output_dir} does not exist. Please create it first."
@@ -731,6 +760,7 @@ def prepare_csv_from_ai_data(
                 atc_to_hot_map=atc_to_hot_map,
                 yj_to_hot_map=yj_to_hot_map,
                 jlac10_segment_map=jlac10_segment_map,
+                end_date=end_date,
             )
             for file, start_date in task_gen
         ]
