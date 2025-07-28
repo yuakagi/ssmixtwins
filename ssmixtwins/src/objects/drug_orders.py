@@ -2,6 +2,7 @@
 Objects for drug orders.
 """
 
+import re
 import random
 from typing import Literal
 from datetime import timedelta
@@ -727,19 +728,59 @@ def generate_random_injection_component(
     else:
         component_type = "A"  # additive
 
-    # quantity
-    if component_type == "A":
-        # Additive
-        component_quantity = random.choice(["10", "120", "240", "360"])
-        component_unit_code = "mg"
-        component_unit_name = "mg"
-        component_unit_code_system = "ISO+"
+    merit_9_4 = {
+    "AMP": "アンプル",
+    "G": "g",
+    "HON": "本",
+    "KIT": "キット",
+    "KO": "個",
+    "MCG": "μg",
+    "MG": "mg",
+    "ML": "mL",
+    "UNT": "単位",
+    "VIL": "バイアル",
+}
+
+    # Infer component unit
+    if component_type == "B":
+        quantity = "100" # TODO: Fixed currently. Change this if needed.
+        component_unit_code = "ML"
+        component_unit_name = "ML"
+        component_unit_code_system = "MR9P"
     else:
-        # Base
-        component_quantity = random.choice(["100", "500", "1000", "1500", "2000"])
-        component_unit_code = "ml"
-        component_unit_name = "ml"
-        component_unit_code_system = "ISO+"
+        # Infer from name
+        # TODO: Improve this logic if necessary.
+        match = re.search(r"(\d+(?:\.\d+)?)\s*(mg|g|μg)", component_name, re.IGNORECASE)
+        if match:
+            unit_map = {
+                "mg": "MG",
+                "g": "G",
+                "μg": "MCG",
+            }
+            # For example, quantity is 25 and unit is mg. (25mg)
+            quantity = match.group(1) # <- Can be float like 2.5! Be careful!
+            unit = match.group(2).lower()  # Normalize unit
+            component_unit_code = unit_map[unit]
+            component_unit_name = component_unit_code # Can also be 'unit' itself.
+            component_unit_code_system = "MR9P"
+        else:
+            # Fallback to generic unit
+            # NOTE: Currently, all fallbacks are set to "AMP" (アンプル).
+            quantity = "1"  
+            component_unit_code = "AMP"
+            component_unit_name = "AMP"
+            component_unit_code_system = "MR9P"
+
+    # Total component quantity in the order
+    # NOTE: The multiplier is how many the same component is ordered (e.g., 1本, 2本, etc.)
+    multiplier = random.choices([1, 2, 3, 4, 5], weights=[50, 25, 12.5, 6.25, 6.25], k=1)[0]  # Random multiplier for quantity
+    if quantity.isdigit():
+        # Process integer quantity
+        component_quantity = int(int(quantity) * multiplier)
+    else:
+        # Process float quantity
+        quantity_float = float(quantity) * multiplier
+        component_quantity = f"{quantity_float:.1f}"
 
     # Create InjectionComponent object
     return InjectionComponent(
@@ -775,23 +816,26 @@ def generate_random_injection_order(
     end_time = (start_time_dt + timedelta(days=1)).strftime(BASE_TIMESTAMP_FORMAT)
     order_effective_time = transaction_time  # Use transaction time as effective time
 
-    # Dose (For OML-02, this is total water volume)
-    minimum_dose = "120"
-    dose_unit_code = "ml"
-    dose_unit_name = "ml"
-    dose_unit_code_system = "ISO+"
     # Dispense
-    # NOTE: Random
-    if random.random() < 0.8:
-        dispense_amount = ""
-        dispense_unit_code = ""
-        dispense_unit_name = ""
-        dispense_unit_code_system = ""
-    else:
-        dispense_amount = random.choice(["120", "240", "360"])
-        dispense_unit_code = "ml"
-        dispense_unit_name = "ml"
-        dispense_unit_code_system = "ISO+"
+    # NOTE: This is computed from components. Improve this logic if necessary.
+    disp_water_volume = 0
+    for c in components:
+        if c.component_unit_code == "ML":
+            disp_water_volume += int(c.component_quantity)
+        else:
+            # Add constant
+            disp_water_volume += 10 # TODO: Change this if needed.
+    dispense_amount = str(disp_water_volume)  # Total water volume to be dispensed
+    dispense_unit_code = "ML"
+    dispense_unit_name = "ML"
+    dispense_unit_code_system = "MR9P"
+
+    # Min dose (For OML-02, this is total water volume)
+    # NOTE: Currently, we set minimum_dose to dispense_amount. Change this if needed.
+    minimum_dose = dispense_amount
+    dose_unit_code = dispense_unit_code
+    dose_unit_name = dispense_unit_name
+    dose_unit_code_system = dispense_unit_code_system
 
     order = InjectionOrder(
         injection_type_code="01",  # We only use '01' (一般) for now
@@ -803,6 +847,7 @@ def generate_random_injection_order(
         dispense_unit_code=dispense_unit_code,
         dispense_unit_name=dispense_unit_name,
         dispense_unit_code_system=dispense_unit_code_system,
+        total_daily_dose="",  # Not used in injection orders
         prescription_number=prescription_number,
         repeat_pattern_code="",
         repeat_pattern_name="",
@@ -827,3 +872,6 @@ def generate_random_injection_order(
     )
 
     return order
+
+
+
