@@ -7,7 +7,6 @@ Example:
 """
 
 from typing import Literal
-from ..tables import h7t_0166
 from ..utils import join_fields, make_message_type
 
 

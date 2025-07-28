@@ -243,8 +243,6 @@ class InjectionComponent:
         component_code_system: str,
         component_quantity: str,
         component_unit_code: str,
-        component_unit_name: str,
-        component_unit_code_system: str,
     ):
         """
         Initializes an InjectionComponent object with the provided parameters.
@@ -255,9 +253,7 @@ class InjectionComponent:
             component_name (str): The name of the component.
             component_code_system (str): The code system for the component, must not be empty.
             component_quantity (str): The quantity of the component, must be a digit and less than 20 characters long.
-            component_unit_code (str): The unit code for the component, must not be empty.
-            component_unit_name (str): The name of the unit for the component, must not be empty.
-            component_unit_code_system (str): The code system for the unit, must not be empty.
+            component_unit_code (str): The unit code for the component, must not be empty. Must be one of 'merit_9_4'.
         """
         # Validate
         assert component_type in [
@@ -266,18 +262,23 @@ class InjectionComponent:
         ], "component_type must be either A or B"
         assert component_code != "", "component_code must not be empty."
         assert (
-            component_unit_code_system != ""
-        ), "component_unit_code_system must not be empty."
-        assert (
             len(component_code) + len(component_name) + len(component_code_system) < 240
         ), "The combination of component_code, component_name, component_code_system is too long."
         assert (
-            component_quantity.isdigit() and len(component_quantity) < 20
-        ), "component_quantity must be a number, less than 20-character long."
+            len(component_quantity) < 20
+        ), "component_quantity must be less than 20-character long."
+        # Check if component_quantity is a digit (can be float)
+        try:
+            # NOTE: Component quantity can be float, so .isdigit() is not appropriate here.
+            float(component_quantity)
+        except ValueError as e:
+            raise ValueError(
+                f"component_quantity must be a digit, got '{component_quantity}'."
+            ) from e
         # NOTE: Component unit validation is minimum here, because the guideline is ambiguous.
-        assert component_unit_code != ""
-        assert component_unit_name != ""
-        assert component_unit_code_system != ""
+        assert (
+            component_unit_code in merit_9_4
+        ), f"component_unit_code must be one of {list(merit_9_4.keys())}, got '{component_unit_code}'."
         # Set attributes
         self.component_type = component_type
         self.component_code = component_code
@@ -285,8 +286,8 @@ class InjectionComponent:
         self.component_code_system = component_code_system
         self.component_quantity = component_quantity
         self.component_unit_code = component_unit_code
-        self.component_unit_name = component_unit_name
-        self.component_unit_code_system = component_unit_code_system
+        self.component_unit_name = merit_9_4[component_unit_code]
+        self.component_unit_code_system = "MR9P"  # RXC-4 uses MR9P as the code system
 
 
 class InjectionOrder:
@@ -303,8 +304,6 @@ class InjectionOrder:
         minimum_dose: str,  # Water volume given per dose (e.g., 120, for 120 mL)
         dispense_amount: str,
         dispense_unit_code: str,  # R, use merit_9_4 or ISO+
-        dispense_unit_name: str,
-        dispense_unit_code_system: str,
         total_daily_dose: str,  # Optional, total daily dose, e.g., 2400
         prescription_number: str,
         repeat_pattern_code: str,
@@ -340,9 +339,7 @@ class InjectionOrder:
             dose_unit_code_system (str): The code system for the dose unit, must not be empty.
             minimum_dose (str): The minimum dose of the injection, must be a digit and less than 20 characters long.
             dispense_amount (str): The amount to be dispensed, can be empty but if provided, must be a digit and less than 20 characters long.
-            dispense_unit_code (str): The unit code for the dispense amount, must be one of 'merit_9_4' or ISO+.
-            dispense_unit_name (str): The name of the dispense unit, must not be empty if dispense_unit_code is not in 'merit_9_4'.
-            dispense_unit_code_system (str): The code system for the dispense unit, must not be empty if dispense_unit_code is not in 'merit_9_4'.
+            dispense_unit_code (str): The unit code for the dispense amount, must be one of 'merit_9_4'.
             prescription_number (str): The prescription number, must not be empty and must be less than 20 characters long.
             repeat_pattern_code (str):
                 The code for the repeat pattern, must be less than 520 characters long when combined with
@@ -364,7 +361,6 @@ class InjectionOrder:
                 NOTE: This is unique to medication orders.
             order_admin_number (str): The order administration number, expected to be a 3-digit number.
                 NOTE: This is unique to medication orders.
-
             NOTE: Arguments below are ORC fields. These arguments are expected to be shared with other orders in the same file.
             transaction_time (str): The transaction time in 'YYYYMMDDHHMMSS' format, can be empty.
             order_effective_time (str): The effective time of the order in 'YYYYMMDD[HH[MM[SS]]]' format, can be empty.
@@ -403,24 +399,13 @@ class InjectionOrder:
                 dispense_amount.isdigit() and len(dispense_amount) <= 20
             ), f"dispense_amount must be a digit and less than 20 characters, got '{dispense_amount}'."
             if dispense_unit_code != "":
-                if dispense_unit_code not in merit_9_4:
-                    # Dispense doese unit must be given if dispense_unit_code is not in merit_9_4.
-                    assert (
-                        dispense_unit_name != ""
-                    ), "dispense_unit_name must not be empty."
-                    assert (
-                        dispense_unit_code_system != ""
-                    ), "dispense_unit_code_system must not be empty."
+                assert (
+                    dispense_unit_code in merit_9_4
+                ), f"dispense_unit_code must be one of {list(merit_9_4.keys())}, got '{dispense_unit_code}'."
         else:
             assert (
                 dispense_unit_code == ""
             ), "dispense_amount must not be provided if dispense_unit_code is not provided."
-            assert (
-                dispense_unit_name == ""
-            ), "dispense_unit_name must not be provided if dispense_amount is not provided."
-            assert (
-                dispense_unit_code_system == ""
-            ), "dispense_unit_code_system must not be provided if dispense_amount is not provided."
         if total_daily_dose != "":
             assert total_daily_dose.isdigit(), "total_daily_dose must be a digit."
         # Prescriotion number is REQUIRED.
@@ -479,12 +464,11 @@ class InjectionOrder:
         # Clean args
         injection_type_name = jhsi_0002[injection_type_code]
         injection_type_code_system = "99I02"
+        dispense_unit_name = merit_9_4[dispense_unit_code]
+        dispense_unit_code_system = "MR9P"
         if dose_unit_code in merit_9_4:
             dose_unit_name = merit_9_4[dose_unit_code]
             dose_unit_code_system = "MR9P"
-        if dispense_unit_code in merit_9_4:
-            dispense_unit_name = merit_9_4[dispense_unit_code]
-            dispense_unit_code_system = "MR9P"
         requester_order_number = requester_order_number.zfill(15)
         if filler_order_number != "":
             filler_order_number = filler_order_number.zfill(15)
@@ -575,13 +559,20 @@ def generate_random_prescription_order(
             break
 
     # Repeat pattern
-    random_repeat_all_sets = ROUTE_TO_PRESC_REPEST_PATTERNS[route_code]
-    random_repeat_set = random.choice(random_repeat_all_sets)
-    repeat_pattern_code = random_repeat_set["repeat_pattern_code"]
-    repeat_pattern_name = random_repeat_set["repeat_pattern_name"]
-    repeat_pattern_code_system = random_repeat_set["repeat_pattern_code_system"]
-    daily_dose = int(random_repeat_set["daily_dose"])
-    # NOTE: daily_dose x minimum_dose = total_daily_dose
+    if route_code in ROUTE_TO_PRESC_REPEST_PATTERNS:
+        random_repeat_all_sets = ROUTE_TO_PRESC_REPEST_PATTERNS[route_code]
+        random_repeat_set = random.choice(random_repeat_all_sets)
+        repeat_pattern_code = random_repeat_set["repeat_pattern_code"]
+        repeat_pattern_name = random_repeat_set["repeat_pattern_name"]
+        repeat_pattern_code_system = random_repeat_set["repeat_pattern_code_system"]
+        daily_dose = int(random_repeat_set["daily_dose"])
+        # NOTE: daily_dose x minimum_dose = total_daily_dose
+    else:
+        # If no repeat pattern is found, use default values
+        repeat_pattern_code = "9999000000000000"  # Default repeat pattern code
+        repeat_pattern_name = "1日1回"  # Default repeat pattern name
+        repeat_pattern_code_system = "99xyz"  # Default repeat pattern code system
+        daily_dose = 1
 
     # Dose form & dose unit & dispense unit
     dosage_form_code = ""  # Set default (null)
@@ -597,8 +588,6 @@ def generate_random_prescription_order(
                 break
         if dosage_form_code != "":
             break
-    dose_unit_name = merit_9_4[dose_unit_code]
-    dose_unit_code_system = "MR9P"
 
     # Minimum dose
     # NOTE: If the minimum dose is hard to define, set it to '""' (double quotes).
@@ -608,12 +597,15 @@ def generate_random_prescription_order(
             '""'  # <- Note: This is not empty string, but '""' (double quotes)
         )
     else:
+        # Minimum_dose ≒ quantity per dose
         minimum_dose = str(random.randint(1, 3))  # Random 1 ~ 3
 
     # Duration in days:
     if is_admitted:
+        # Admission
         duration_in_days = str(random.randint(1, 7))
     else:
+        # Outpatient
         duration_in_days = random.choice(["7", "30", "60", "90"])
 
     # Dispense amount
@@ -728,25 +720,19 @@ def generate_random_injection_component(
     else:
         component_type = "A"  # additive
 
-    merit_9_4 = {
-    "AMP": "アンプル",
-    "G": "g",
-    "HON": "本",
-    "KIT": "キット",
-    "KO": "個",
-    "MCG": "μg",
-    "MG": "mg",
-    "ML": "mL",
-    "UNT": "単位",
-    "VIL": "バイアル",
-}
-
     # Infer component unit
     if component_type == "B":
-        quantity = "100" # TODO: Fixed currently. Change this if needed.
+        quantity = random.choices(
+            ["100", "250", "500", "1000"],
+            weights=[
+                0.05,
+                0.05,
+                0.85,
+                0.05,
+            ],
+            k=1,
+        )[0]
         component_unit_code = "ML"
-        component_unit_name = "ML"
-        component_unit_code_system = "MR9P"
     else:
         # Infer from name
         # TODO: Improve this logic if necessary.
@@ -758,29 +744,29 @@ def generate_random_injection_component(
                 "μg": "MCG",
             }
             # For example, quantity is 25 and unit is mg. (25mg)
-            quantity = match.group(1) # <- Can be float like 2.5! Be careful!
+            quantity = match.group(1)  # <- Can be float like 2.5! Be careful!
             unit = match.group(2).lower()  # Normalize unit
             component_unit_code = unit_map[unit]
-            component_unit_name = component_unit_code # Can also be 'unit' itself.
-            component_unit_code_system = "MR9P"
         else:
             # Fallback to generic unit
             # NOTE: Currently, all fallbacks are set to "AMP" (アンプル).
-            quantity = "1"  
+            quantity = "1"
             component_unit_code = "AMP"
-            component_unit_name = "AMP"
-            component_unit_code_system = "MR9P"
 
     # Total component quantity in the order
     # NOTE: The multiplier is how many the same component is ordered (e.g., 1本, 2本, etc.)
-    multiplier = random.choices([1, 2, 3, 4, 5], weights=[50, 25, 12.5, 6.25, 6.25], k=1)[0]  # Random multiplier for quantity
+    multiplier = random.choices(
+        [1, 2, 3, 4, 5], weights=[50, 25, 12.5, 6.25, 6.25], k=1
+    )[
+        0
+    ]  # Random multiplier for quantity
     if quantity.isdigit():
         # Process integer quantity
         component_quantity = int(int(quantity) * multiplier)
     else:
         # Process float quantity
         quantity_float = float(quantity) * multiplier
-        component_quantity = f"{quantity_float:.1f}"
+        component_quantity = f"{quantity_float:.2f}"
 
     # Create InjectionComponent object
     return InjectionComponent(
@@ -790,8 +776,6 @@ def generate_random_injection_component(
         component_code_system=component_code_system,
         component_quantity=component_quantity,
         component_unit_code=component_unit_code,
-        component_unit_name=component_unit_name,
-        component_unit_code_system=component_unit_code_system,
     )
 
 
@@ -821,21 +805,19 @@ def generate_random_injection_order(
     disp_water_volume = 0
     for c in components:
         if c.component_unit_code == "ML":
-            disp_water_volume += int(c.component_quantity)
+            # Add water volume in mL
+            disp_water_volume += float(c.component_quantity)
         else:
             # Add constant
-            disp_water_volume += 10 # TODO: Change this if needed.
-    dispense_amount = str(disp_water_volume)  # Total water volume to be dispensed
-    dispense_unit_code = "ML"
-    dispense_unit_name = "ML"
-    dispense_unit_code_system = "MR9P"
-
+            disp_water_volume += 10  # TODO: Change this if needed.
+    dispense_amount = str(int(disp_water_volume))  # Total water volume to be dispensed
+    dispense_unit_code = "ML"  # From merit_9_4
     # Min dose (For OML-02, this is total water volume)
     # NOTE: Currently, we set minimum_dose to dispense_amount. Change this if needed.
     minimum_dose = dispense_amount
     dose_unit_code = dispense_unit_code
-    dose_unit_name = dispense_unit_name
-    dose_unit_code_system = dispense_unit_code_system
+    dose_unit_name = merit_9_4[dose_unit_code]
+    dose_unit_code_system = "MR9P"
 
     order = InjectionOrder(
         injection_type_code="01",  # We only use '01' (一般) for now
@@ -845,8 +827,6 @@ def generate_random_injection_order(
         minimum_dose=minimum_dose,
         dispense_amount=dispense_amount,
         dispense_unit_code=dispense_unit_code,
-        dispense_unit_name=dispense_unit_name,
-        dispense_unit_code_system=dispense_unit_code_system,
         total_daily_dose="",  # Not used in injection orders
         prescription_number=prescription_number,
         repeat_pattern_code="",
@@ -872,6 +852,3 @@ def generate_random_injection_order(
     )
 
     return order
-
-
-
