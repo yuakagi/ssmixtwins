@@ -1,0 +1,201 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ssmixtwinsを使ったデータベースの生成マニュアル &mdash; ssmixtwins  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="元となるCSVファイルについて" href="source_data.html" />
+    <link rel="prev" title="ssmixtwinsについて" href="main_page.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="main_page.html">ssmixtwinsについて</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">データ生成マニュアル(開発者用)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">1. 元となるデータの準備</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">2. ssmixtwinsをインストール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ss-mix2">3. SS-MIX2ストレージを生成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">4. 生成されたSS-MIX2ストレージの確認</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source_data.html">元となるCSVデータ(開発者用)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/ssmixtwins.html">ssmixtwins API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ssmixtwins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ssmixtwinsを使ったデータベースの生成マニュアル</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ssmixtwins">
+<h1>ssmixtwinsを使ったデータベースの生成マニュアル<a class="headerlink" href="#ssmixtwins" title="Link to this heading"></a></h1>
+<p>このドキュメントでは、ssmixtwinsを使用してSS-MIX2ストレージを生成する方法について説明します。</p>
+<section id="id1">
+<h2>1. 元となるデータの準備<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>このPythonパッケージは、データベースの元となる最小限の患者データを必要とします。
+ssmixtwinsはこれをもとに、患者名や住所、オーダー番号、アレルギー情報、保険情報などさまざまなダミーデータを追加し、本物らしいSS-MIX2ストレージを構築します。
+必要なCSVファイルの詳細については <a class="reference internal" href="source_data.html"><span class="doc">CSVデータ詳細</span></a> をご覧ください。</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h2>2. ssmixtwinsをインストール<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>このパッケージは、Python 3.10以上の環境で動作します。必要に応じてまずPython3をインストールまたはアップデートしてください。</p></li>
+</ul>
+</div>
+<p>ステップ:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>ssmixtwinsのリポジトリをクローンします。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/your/working_dir
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/yuakagi/ssmixtwins.git
+</pre></div>
+</div>
+<p>ここで、/path/to/your/working_dirは、作業ディレクトリのパスに置き換えてください。</p>
+</li>
+<li><p>リポジトリのルートディレクトリに移動し、Pythonの仮想環境を構築します。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/your/working_dir/ssmixtwins
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+</li>
+<li><p>ssmixtwinsをインストールします。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+<p>必要な依存関係もインストールされます。</p>
+</li>
+</ol>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="ss-mix2">
+<h2>3. SS-MIX2ストレージを生成<a class="headerlink" href="#ss-mix2" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p><a class="reference internal" href="../generated/ssmixtwins.html#ssmixtwins.create_ssmix" title="ssmixtwins.create_ssmix"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssmixtwins.create_ssmix()</span></code></a> を使用して、SS-MIX2ストレージを生成します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ssmixtwins</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_ssmix</span>
+
+<span class="n">create_ssmix</span><span class="p">(</span>
+   <span class="c1"># 元となるCSVファイルが格納されているディレクトリ</span>
+   <span class="n">source_dir</span><span class="o">=</span><span class="s2">&quot;/path/to/your/source_data&quot;</span><span class="p">,</span>
+   <span class="c1"># 出力先ディレクトリ</span>
+   <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;/path/to/your/output_data&quot;</span><span class="p">,</span>
+   <span class="c1"># ワーカーの数。大量のデータを処理する場合は、マシンのCPUコア数に応じて調整してください。ワーカーの数が少ないと、非常に時間がかかる場合があります。</span>
+   <span class="n">max_workers</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+   <span class="c1"># CSVファイルのバリデーションをスキップしたい場合、Trueに設定します。</span>
+   <span class="n">already_validated</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>この関数はまず、全てのCSVファイルを一度検証します。全て問題がなければ、SS-MIX2ストレージの生成プロトコルを開始します。
+もしCSVに問題があった場合（欠損値、フォーマットエラーなど）、途中で終了し、エラーの詳細を含んだJSONファイルをoutput_dirに出力します。
+検証が成功しない場合、このファイルを参考にして、CSVファイルの修正や除外を行ってください。
+なお、一度検証が済んでおり、CSVファイルの検証をする必要がない場合、 <cite>already_validated=True</cite> を設定することで、検証をスキップできます。</p>
+<p>必要データの生成が完了したらPython仮想環境は不要です。必要に応じて.venvディレクトリを削除してください。</p>
+</div></blockquote>
+</section>
+<section id="id3">
+<h2>4. 生成されたSS-MIX2ストレージの確認<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>生成されたSS-MIX2ストレージは、 <cite>output_dir</cite> に格納されます。
+生成されたファイルは、以下のような構造になっています:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output_dir/
+   ├── ssmixtwins/
+   │   ├── ...
+   │   ├── ...
+</pre></div>
+</div>
+<p><cite>output_dir/ssmixtwins</cite> がSS-MIX2ストレージのルートディレクトリです。</p>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="main_page.html" class="btn btn-neutral float-left" title="ssmixtwinsについて" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="source_data.html" class="btn btn-neutral float-right" title="元となるCSVファイルについて" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yu Akagi, MD.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

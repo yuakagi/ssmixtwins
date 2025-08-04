@@ -1,0 +1,743 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ssmixtwinsについて &mdash; ssmixtwins  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+      <link rel="stylesheet" type="text/css" href="../_static/color_theme.css?v=38118af3" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ssmixtwinsを使ったデータベースの生成マニュアル" href="tutorial.html" />
+    <link rel="prev" title="ssmixtwins Documentation" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ssmixtwinsについて</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">概要</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">ストレージの構造</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hl7">HL7メッセージについて</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adt-00">患者基本情報 (ADT-00)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adt-22">入院情報 (ADT-22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adt-52">退院情報 (ADT-52)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adt-12">外来受診 (ADT-12)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ppr-01">診断 (PPR-01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#omp-01">処方オーダー (OMP-01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#omp-02">注射オーダー (OMP-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oml-11">検体検査結果 (OML-11)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">そのほかの情報</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">データ生成マニュアル(開発者用)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source_data.html">元となるCSVデータ(開発者用)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/ssmixtwins.html">ssmixtwins API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ssmixtwins</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ssmixtwinsについて</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ssmixtwins">
+<h1>ssmixtwinsについて<a class="headerlink" href="#ssmixtwins" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>概要<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<a class="center reference internal image-reference" href="../_images/ssmixtwins_concept.png"><img alt="ssmixtwins concept" class="center" src="../_images/ssmixtwins_concept.png" style="width: 800px;" />
+</a>
+<p>SS-MIX2は日本国内の臨床情報を保存するための標準です。日本国内では1000以上の施設に導入されおり、SS-MIX2に準拠して保存されたデータをSS-MIX2ストレージと呼びます。
+SS-MIX2ストレージを用いることで、患者データを共有したり、患者データを活用したアプリケーション開発が可能になります。</p>
+<p>しかし、SS-MIX2ストレージには個人情報が含まれており、実データを用いてアプリケーション開発を行うことは難しい場合があります。
+ssmixtwinsはこの問題を解消するため、研究開発用のダミーSS-MIX2ストレージを生成するPythonパッケージとして開発されました。</p>
+<p>ssmixtwinsは最小限の臨床データをもとに、SS-MIX2ストレージを生成します (図)。
+従って、データを生成する場合は少量の元となるデータをご自身でご準備いただく必要があります(詳細は <a class="reference internal" href="source_data.html"><span class="doc">CSVデータ詳細</span></a> をご覧ください)。
+このデータをもとに、ssmixtwinsがオーダー番号やアレルギー情報などのダミーデータを追加し、本物らしいSSMIX2ストレージを構築します。</p>
+<p>生成されるデータは、SS-MIX2の仕様に準拠しております。詳細は <a class="reference external" href="https://www.jami.jp/jamistd/ssmix2/">SS-MIX2の公式ガイドライン</a> をご覧ください。現在、ssmixtwinsはSS-MIX2ガイドラインのバージョン1.2hに準拠しています。</p>
+<p>このページでは、主に生成されたデータを使用する方向けに、ssmixtwinsにより生成されるデータの詳細を説明します。</p>
+<p>（開発者向けのマニュアルは  <a class="reference internal" href="tutorial.html"><span class="doc">データ生成マニュアル</span></a> をご覧ください。）</p>
+</section>
+<section id="id2">
+<h2>ストレージの構造<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>生成されたSSMIX2ストレージは、以下のような構造になっています:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>├── ssmixtwins/
+    ├── 123/ # 患者IDの先頭3桁
+    │   ├── 001 # 患者IDの4–6桁目
+    │   │   ├── ...
+    │   ├── 002
+    │        ├── 1230020001 # 患者IDと一致したディレクトリ
+    │        │    ├── - # 診療日ごとに関連されないファイルを管理する&#39;-&#39;フォルダ
+    │        │    │   ├── ADT-00 # 患者基本情報を含むディレクトリ
+    │        │    │   ├── PPR-01 # 診断情報を含むディレクトリ
+    │        │    │   ├── ...
+    │        │    ├── 20250710 # 診療日ごとのディレクトリ
+    │        │        ├── OMP-01 # 処方オーダーを含むディレクトリ
+    │        │        ├── OMP-02 # 注射オーダーを含むディレクトリ
+    │        │        ├── OML-11 # 検体検査結果を含むディレクトリ
+    │        │        ├── ... # その他のHL7メッセージディレクトリ
+    │        ├── 1230020002
+    │        ├── 1230020003
+    │        ├── ...
+    ├── 125/
+</pre></div>
+</div>
+<p>これはSS-MIX2に準拠したディレクトリ構造です。各患者フォルダにはさらに診療日ごとのフォルダが存在し、その中に各種臨床データがHL7 version 2.5 メッセージとして格納されています。診断や患者基本情報など、診断日ごとに分けられないデータは’ハイフン(-)’フォルダに格納されます。</p>
+</section>
+<section id="hl7">
+<h2>HL7メッセージについて<a class="headerlink" href="#hl7" title="Link to this heading"></a></h2>
+<p>HL7メッセージは、医療情報を交換するための標準フォーマットです。ssmixtwinsでは、HL7 version 2.5に準拠したメッセージを生成します。
+このメッセージはテキストファイルで、CSVがコンマ(,)で区切られるように、データを縦棒(|)で区切った構造化データとなっています。
+これはSS-MIX2の仕様に従い、 <strong>全てISO-2022-JPでエンコードされます。</strong></p>
+<p>それぞれのメッセージファイルは、以下のような名前で保存されます:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;患者ID&gt;_&lt;診療日&gt;_&lt;データ種別&gt;_&lt;オーダ No&gt;_&lt;発生日時:YYYYMMDDHHMMSSFFF&gt;_&lt;診療科コード&gt;_&lt;コンディションフラグ&gt;
+</pre></div>
+</div>
+<p>例えば、OML-11メッセージのファイル名は以下のようになります:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1230020001_20250710_OML-11_3210000001_20250710123012752_004_1
+</pre></div>
+</div>
+<p>コンディションフラグは1が有効、0が無効、2が過去履歴を表します。ssmixtwinsで生成されるデータは全てコンディションフラグが1に設定されます。</p>
+</section>
+<section id="adt-00">
+<h2>患者基本情報 (ADT-00)<a class="headerlink" href="#adt-00" title="Link to this heading"></a></h2>
+<p>患者名、住所、生年月日などの情報はADT-00メッセージとして格納されます。
+生年月日と性別はCSV元データを参照します。必要に応じて、データ生成の段階で日付と年齢、性別はあらかじめダミーの値を設定してください ( <a class="reference internal" href="source_data.html"><span class="doc">CSV元データ</span></a> )。</p>
+<p>患者名や住所などそのほか全てのデータは本物らしいですが、 <strong>全て実在の患者とは無関係</strong> のため、安全にデータを使用できます。</p>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">患者基本情報</span><a class="headerlink" href="#id4" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>患者ID</p></td>
+<td><p>PID-3</p></td>
+<td><p>衝突しない10桁の数字を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>生年月日</p></td>
+<td><p>PID-7</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>性別</p></td>
+<td><p>PID-8</p></td>
+<td><p>元データを参照。M:男性, F:女性, O:その他, U:不明, A:両性具有, N:適応外のいずれかだが、主にMかF。</p></td>
+</tr>
+<tr class="row-odd"><td><p>患者名</p></td>
+<td><p>PID-5</p></td>
+<td><p>性別に応じてランダムな男性名、女性名を生成。実在の名前とは無関係。</p></td>
+</tr>
+<tr class="row-even"><td><p>郵便番号</p></td>
+<td><p>PID-11</p></td>
+<td><p>ランダムな日本の郵便番号を生成。市町村および町域レベルで住所と一致するよう生成される。</p></td>
+</tr>
+<tr class="row-odd"><td><p>住所</p></td>
+<td><p>PID-11</p></td>
+<td><p>ランダムな日本の住所らしいデータを生成。実在の住所とは無関係。</p></td>
+</tr>
+<tr class="row-even"><td><p>電話番号</p></td>
+<td><p>PID-13, 14</p></td>
+<td><p>ランダムな日本の電話番号らしいデータを生成。実在の電話番号とは無関係。</p></td>
+</tr>
+<tr class="row-odd"><td><p>最終更新日時</p></td>
+<td><p>PID-33</p></td>
+<td><p>全レコードの最終日時を使用。</p></td>
+</tr>
+<tr class="row-even"><td><p>アレルギー</p></td>
+<td><p>AL1</p></td>
+<td><p>患者ごとに0~数件のアレルギー情報をランダムで付与。一部J-FAGYコードを使用。</p></td>
+</tr>
+<tr class="row-odd"><td><p>ABO血液型</p></td>
+<td><p>OBX</p></td>
+<td><p>ランダムなABO血液型を生成 (A&gt;O&gt;B&gt;ABの頻度）。</p></td>
+</tr>
+<tr class="row-even"><td><p>Rh因子</p></td>
+<td><p>OBX</p></td>
+<td><p>ランダムなRh因子を生成 (Rh+&gt;&gt;Rh-)。</p></td>
+</tr>
+<tr class="row-odd"><td><p>身長</p></td>
+<td><p>OBX</p></td>
+<td><p>ランダムな身長を生成 (平均172cm, 標準偏差6cm程度)。</p></td>
+</tr>
+<tr class="row-even"><td><p>体重</p></td>
+<td><p>OBX</p></td>
+<td><p>ランダムな体重を生成 (平均60kg, 標準偏差10kg程度)。</p></td>
+</tr>
+<tr class="row-odd"><td><p>保険プランID</p></td>
+<td><p>IN1-2</p></td>
+<td><p>JHSD 表 0001-保険種別からランダム。ただし国民健康保険(C0)が多くなっている。</p></td>
+</tr>
+<tr class="row-even"><td><p>保険者番号</p></td>
+<td><p>IN1-3</p></td>
+<td><p>国民健康保険は6桁、そのほかの保険は8桁のランダムな数字。実在の保険者番号とは無関係。</p></td>
+</tr>
+<tr class="row-odd"><td><p>保険会社名</p></td>
+<td><p>IN1-4</p></td>
+<td><p>固定値</p></td>
+</tr>
+<tr class="row-even"><td><p>被保険者グループ雇用者 ID</p></td>
+<td><p>IN1-10</p></td>
+<td><p>固定値</p></td>
+</tr>
+<tr class="row-odd"><td><p>被保険者グループ雇用者名</p></td>
+<td><p>IN1-11</p></td>
+<td><p>固定値</p></td>
+</tr>
+<tr class="row-even"><td><p>保険:プラン有効日付</p></td>
+<td><p>IN1-12</p></td>
+<td><p>最終更新日時とほぼ同等</p></td>
+</tr>
+<tr class="row-odd"><td><p>保険:プラン失効日付</p></td>
+<td><p>IN1-13</p></td>
+<td><p>プラン有効日付から一年後</p></td>
+</tr>
+<tr class="row-even"><td><p>保険:プランタイプ</p></td>
+<td><p>IN1-15</p></td>
+<td><p>必要に応じてJHSD 表 0002-保険のプランタイプからランダム。</p></td>
+</tr>
+<tr class="row-odd"><td><p>保険:被保険者と患者の関係</p></td>
+<td><p>IN1-17</p></td>
+<td><p>本人(SEL)で固定。</p></td>
+</tr>
+<tr class="row-even"><td><p>患者の職場</p></td>
+<td><p>NK1-13</p></td>
+<td><p>ランダムな職場名を生成。小児は常に空欄。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="adt-22">
+<h2>入院情報 (ADT-22)<a class="headerlink" href="#adt-22" title="Link to this heading"></a></h2>
+<p>入院情報はADT-22メッセージとして格納されます。</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">入院情報</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>入院日時</p></td>
+<td><p>PV1-44</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>病棟コード</p></td>
+<td><p>PV1-3</p></td>
+<td><p>ランダムな病棟を生成。</p></td>
+</tr>
+<tr class="row-even"><td><p>病室コード</p></td>
+<td><p>PV1-3</p></td>
+<td><p>ランダムな病室を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>ベッド番号</p></td>
+<td><p>PV1-3</p></td>
+<td><p>ランダムな番号を生成。</p></td>
+</tr>
+<tr class="row-even"><td><p>主治医</p></td>
+<td><p>PV1-7</p></td>
+<td><p>ランダムに医師を選択。</p></td>
+</tr>
+<tr class="row-odd"><td><p>入院時医師</p></td>
+<td><p>PV1-17</p></td>
+<td><p>ランダムに医師を選択。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="adt-52">
+<h2>退院情報 (ADT-52)<a class="headerlink" href="#adt-52" title="Link to this heading"></a></h2>
+<p>退院情報はADT-52メッセージとして格納されます。</p>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">退院情報</span><a class="headerlink" href="#id6" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>退院区分</p></td>
+<td><p>PV1-36</p></td>
+<td><p>元データを参照。生存退院なら’01’、死亡退院なら’20’などの退院区分を表すコード。</p></td>
+</tr>
+<tr class="row-odd"><td><p>退院日時</p></td>
+<td><p>PV1-45</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>病棟コード</p></td>
+<td><p>PV1-3</p></td>
+<td><p>ADT-22で設定されたものと同じ。</p></td>
+</tr>
+<tr class="row-odd"><td><p>病室コード</p></td>
+<td><p>PV1-3</p></td>
+<td><p>ADT-22で設定されたものと同じ。</p></td>
+</tr>
+<tr class="row-even"><td><p>ベッド番号</p></td>
+<td><p>PV1-3</p></td>
+<td><p>ADT-22で設定されたものと同じ。。</p></td>
+</tr>
+<tr class="row-odd"><td><p>主治医</p></td>
+<td><p>PV1-7</p></td>
+<td><p>ADT-22で設定されたものと同じ。</p></td>
+</tr>
+<tr class="row-even"><td><p>入院時医師</p></td>
+<td><p>PV1-17</p></td>
+<td><p>ADT-22で設定されたものと同じ。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="adt-12">
+<h2>外来受診 (ADT-12)<a class="headerlink" href="#adt-12" title="Link to this heading"></a></h2>
+<p>外来受診情報はADT-12メッセージとして格納されます。</p>
+<p>他のレコード(OML-11, OMP-01, OMP-02など)と矛盾のないように、適宜ADT-12メッセージを生成します。</p>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">外来受診情報</span><a class="headerlink" href="#id7" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>受診日時</p></td>
+<td><p>PV1-44</p></td>
+<td><p>他のレコードに60~180分ほど先行するように設定。入院中は無し。</p></td>
+</tr>
+<tr class="row-odd"><td><p>診療科</p></td>
+<td><p>PV1-3</p></td>
+<td><p>基本的に主治医の診療科に一致するようSS-MIX2 統一診療科コード表から選択。</p></td>
+</tr>
+<tr class="row-even"><td><p>主治医</p></td>
+<td><p>PV1-7</p></td>
+<td><p>ランダムに医師を選択。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ppr-01">
+<h2>診断 (PPR-01)<a class="headerlink" href="#ppr-01" title="Link to this heading"></a></h2>
+<p>診断情報はPPR-01メッセージとして格納されます。</p>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">診断情報</span><a class="headerlink" href="#id8" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>アクションコード</p></td>
+<td><p>PRB-1</p></td>
+<td><p>基本的に全てAD</p></td>
+</tr>
+<tr class="row-odd"><td><p>アクション日時</p></td>
+<td><p>PRB-2</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>病名コード</p></td>
+<td><p>PRB-3</p></td>
+<td><p>8桁の病名管理番号を使用する。元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>病名</p></td>
+<td><p>PRB-3</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>プロブレムインスタンス ID</p></td>
+<td><p>PRB-4</p></td>
+<td><p>衝突しないランダムな数字を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>疑い病名フラグ</p></td>
+<td><p>PRB-13</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>診断日時</p></td>
+<td><p>PRB-7</p></td>
+<td><p>アクション日時 − 0~1日程度のランダムな時間を設定。</p></td>
+</tr>
+<tr class="row-odd"><td><p>予想されるプロブレム解決日付</p></td>
+<td><p>PRB-8</p></td>
+<td><p>アクション日時 + 0~30日程度のランダムな時間を設定。</p></td>
+</tr>
+<tr class="row-even"><td><p>ICD-10コード</p></td>
+<td><p>PRB-10</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>診断種別</p></td>
+<td><p>PRB-10</p></td>
+<td><p>JHSD 表 0004-診断種別からランダムに選択。</p></td>
+</tr>
+<tr class="row-even"><td><p>発症日時</p></td>
+<td><p>PRB-16</p></td>
+<td><p>アクション日時 − 0~30日程度のランダムな時間を設定。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="omp-01">
+<h2>処方オーダー (OMP-01)<a class="headerlink" href="#omp-01" title="Link to this heading"></a></h2>
+<p>処方オーダー情報はOMP-01メッセージとして格納されます。</p>
+<table class="docutils align-default" id="id9">
+<caption><span class="caption-text">処方オーダー情報</span><a class="headerlink" href="#id9" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>薬剤コード</p></td>
+<td><p>RXE-2</p></td>
+<td><p>HOTコードを使用する。元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>薬剤名</p></td>
+<td><p>RXE-2</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>与薬量－最小</p></td>
+<td><p>RXE-3</p></td>
+<td><p>いくつかのパターンからランダムに選択(軟膏などでは空欄)。</p></td>
+</tr>
+<tr class="row-odd"><td><p>与薬単位</p></td>
+<td><p>RXE-5</p></td>
+<td><p>可能な限り薬剤名から推定。不可の場合は固定値。</p></td>
+</tr>
+<tr class="row-even"><td><p>与薬剤形</p></td>
+<td><p>RXE-6</p></td>
+<td><p>可能な限り薬剤名から推定。不可の場合は固定値。</p></td>
+</tr>
+<tr class="row-odd"><td><p>調剤量</p></td>
+<td><p>RXE-10</p></td>
+<td><p>可能な限り、繰返しパターンなど参考に計算。</p></td>
+</tr>
+<tr class="row-even"><td><p>調剤単位</p></td>
+<td><p>RXE-11</p></td>
+<td><p>可能な限り薬剤名から推定。</p></td>
+</tr>
+<tr class="row-odd"><td><p>処方箋番号</p></td>
+<td><p>RXE-15</p></td>
+<td><p>衝突しないランダムな番号を生成。</p></td>
+</tr>
+<tr class="row-even"><td><p>1日あたりの総投与量</p></td>
+<td><p>RXE-19</p></td>
+<td><p>可能な限り、繰返しパターンなど参考に計算。</p></td>
+</tr>
+<tr class="row-odd"><td><p>繰返しパターン</p></td>
+<td><p>TQ1-3</p></td>
+<td><p>いくつかのパターンからランダムに選択。</p></td>
+</tr>
+<tr class="row-even"><td><p>投与日数</p></td>
+<td><p>TQ1-6</p></td>
+<td><p>入院、外来に応じてランダムな日数を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>開始日時</p></td>
+<td><p>TQ1-7</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>投与経路</p></td>
+<td><p>RXR-1</p></td>
+<td><p>可能な限り薬剤名から推定。不可の場合は固定値。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="omp-02">
+<h2>注射オーダー (OMP-02)<a class="headerlink" href="#omp-02" title="Link to this heading"></a></h2>
+<p>注射オーダー情報はOMP-02メッセージとして格納されます。</p>
+<table class="docutils align-default" id="id10">
+<caption><span class="caption-text">注射オーダー情報</span><a class="headerlink" href="#id10" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>注射種別</p></td>
+<td><p>RXE-2</p></td>
+<td><p>JHSI 表 0002-注射種別に基づく固定値 (00)</p></td>
+</tr>
+<tr class="row-odd"><td><p>与薬量－最小</p></td>
+<td><p>RXE-3</p></td>
+<td><p>成分量などもとに計算。</p></td>
+</tr>
+<tr class="row-even"><td><p>与薬単位</p></td>
+<td><p>RXE-5</p></td>
+<td><p>可能な限り薬剤名から推定。</p></td>
+</tr>
+<tr class="row-odd"><td><p>与薬剤形</p></td>
+<td><p>RXE-6</p></td>
+<td><p>固定値 (INJ)</p></td>
+</tr>
+<tr class="row-even"><td><p>調剤量</p></td>
+<td><p>RXE-10</p></td>
+<td><p>成分量などもとに計算。</p></td>
+</tr>
+<tr class="row-odd"><td><p>調剤単位</p></td>
+<td><p>RXE-11</p></td>
+<td><p>可能な限り薬剤名から推定。</p></td>
+</tr>
+<tr class="row-even"><td><p>処方箋番号</p></td>
+<td><p>RXE-15</p></td>
+<td><p>衝突しないランダムな番号を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>成分タイプ</p></td>
+<td><p>RXC-1</p></td>
+<td><p>AまたはBを成分名から可能な限り推定。</p></td>
+</tr>
+<tr class="row-even"><td><p>成分コード</p></td>
+<td><p>RXC-2</p></td>
+<td><p>HOTコードを使用する。元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>成分名</p></td>
+<td><p>RXC-2</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>成分量</p></td>
+<td><p>RXC-3</p></td>
+<td><p>ランダムな数量を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>成分単位</p></td>
+<td><p>RXC-4</p></td>
+<td><p>可能な限り薬剤名から推定。</p></td>
+</tr>
+<tr class="row-even"><td><p>開始日時</p></td>
+<td><p>TQ1-7</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>投与経路</p></td>
+<td><p>RXR-1</p></td>
+<td><p>固定値。</p></td>
+</tr>
+<tr class="row-even"><td><p>投薬装置</p></td>
+<td><p>RXR-3</p></td>
+<td><p>固定値。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="oml-11">
+<h2>検体検査結果 (OML-11)<a class="headerlink" href="#oml-11" title="Link to this heading"></a></h2>
+<p>検体検査結果はOML-11メッセージとして格納されます</p>
+<table class="docutils align-default" id="id11">
+<caption><span class="caption-text">検体検査結果</span><a class="headerlink" href="#id11" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>値型</p></td>
+<td><p>OBX-2</p></td>
+<td><p>結果値から推定 (数値or文字列)。</p></td>
+</tr>
+<tr class="row-odd"><td><p>検査コード</p></td>
+<td><p>OBX-3</p></td>
+<td><p>17桁JLAC10コードを使用する。元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>検査名称</p></td>
+<td><p>OBX-3</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>検査値</p></td>
+<td><p>OBX-5</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>単位</p></td>
+<td><p>OBX-6</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-odd"><td><p>検査結果状態</p></td>
+<td><p>OBX-11</p></td>
+<td><p>固定値</p></td>
+</tr>
+<tr class="row-even"><td><p>検査項目ID</p></td>
+<td><p>OBR-4</p></td>
+<td><p>検査コードから、適切なIDをJLAC10より設定する。</p></td>
+</tr>
+<tr class="row-odd"><td><p>検体採取日時</p></td>
+<td><p>OBR-7, SPM-17</p></td>
+<td><p>元データを参照。</p></td>
+</tr>
+<tr class="row-even"><td><p>検体採取終了日時</p></td>
+<td><p>OBR-8</p></td>
+<td><p>検体採取日時と一致。</p></td>
+</tr>
+<tr class="row-odd"><td><p>結果報告/状態変更-日時</p></td>
+<td><p>OBR-22</p></td>
+<td><p>検体採取日時 + 30~180分程度のランダムな時間を設定。</p></td>
+</tr>
+<tr class="row-even"><td><p>検体 ID</p></td>
+<td><p>SPM-2</p></td>
+<td><p>衝突しないランダムな番号を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>検体タイプ</p></td>
+<td><p>SPM-4</p></td>
+<td><p>検査コードのJLAC10より、適切な検体タイプを設定する。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h2>そのほかの情報<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>オーダー番号やメッセージID、メッセージ時刻、医師名、病院名など、さまざまなメッセージで使われるデータの詳細については、以下の表を参照してください。</p>
+<p>病院はひとつの病院のデータ(病院名、郵便番号、住所、電話番号など)が生成され、その一つを使いまわします。複数の病院が出現することはありません。</p>
+<p>医師は30名程度のデータ(医師名、医師ID、所属診療科など)が生成され、これらの医師が各種メッセージで使いまわされます。</p>
+<p>患者の経過中、主治医や入院担当医が時折変わるように設定されています。オーダー依頼者や入力者はランダムですが、
+できるだけ本物らしくするために、高い確率で主治医か入院担当医が選ばれれるようになっています。</p>
+<table class="docutils align-default" id="id12">
+<caption><span class="caption-text">その他の情報</span><a class="headerlink" href="#id12" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>データ</p></th>
+<th class="head"><p>関連セグメント</p></th>
+<th class="head"><p>詳細</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>メッセージID</p></td>
+<td><p>MSH-10</p></td>
+<td><p>衝突しないランダムな最大20桁の番号を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>メッセージ時刻</p></td>
+<td><p>MSH-7</p></td>
+<td><p>各種レコードに矛盾ない時刻を設定。</p></td>
+</tr>
+<tr class="row-even"><td><p>オーダー制御</p></td>
+<td><p>ORC-1</p></td>
+<td><p>基本的に全てNW</p></td>
+</tr>
+<tr class="row-odd"><td><p>依頼者オーダー番号</p></td>
+<td><p>ORC-2</p></td>
+<td><p>衝突しないランダムな15桁の番号を生成。左ゼロ埋め。</p></td>
+</tr>
+<tr class="row-even"><td><p>実施者オーダー番号</p></td>
+<td><p>ORC-3</p></td>
+<td><p>衝突しないランダムな15桁の番号を生成。左ゼロ埋め。</p></td>
+</tr>
+<tr class="row-odd"><td><p>トランザクション時刻</p></td>
+<td><p>ORC-9</p></td>
+<td><p>各種レコードに矛盾ない時刻を設定。</p></td>
+</tr>
+<tr class="row-even"><td><p>オーダー入力者</p></td>
+<td><p>ORC-10</p></td>
+<td><p>ランダムな医師。</p></td>
+</tr>
+<tr class="row-odd"><td><p>オーダー依頼者</p></td>
+<td><p>ORC-12</p></td>
+<td><p>ランダムな医師で、主にオーダー入力者と同じ。</p></td>
+</tr>
+<tr class="row-even"><td><p>オーダ有効日時</p></td>
+<td><p>ORC-15</p></td>
+<td><p>各種レコードに矛盾ない時刻を設定。</p></td>
+</tr>
+<tr class="row-odd"><td><p>オーダータイプ</p></td>
+<td><p>ORC-29</p></td>
+<td><p>入院中ならI, 外来中ならOが正しく設定される。</p></td>
+</tr>
+<tr class="row-even"><td><p>病院名</p></td>
+<td><p>ORC-21など</p></td>
+<td><p>固定値</p></td>
+</tr>
+<tr class="row-odd"><td><p>病院郵便番号</p></td>
+<td><p>ORC-22</p></td>
+<td><p>ランダムな日本の郵便番号を生成。</p></td>
+</tr>
+<tr class="row-even"><td><p>病院住所</p></td>
+<td><p>ORC-22</p></td>
+<td><p>ランダムな日本の住所を生成。</p></td>
+</tr>
+<tr class="row-odd"><td><p>病院電話番号</p></td>
+<td><p>ORC-23</p></td>
+<td><p>ランダムな日本の電話番号を生成。</p></td>
+</tr>
+<tr class="row-even"><td><p>診療科</p></td>
+<td><p>PV1-3など</p></td>
+<td><p>SS-MIX2 統一診療科コード表から選択。医師に対して割り当てられており、主治医か入院担当医の診療科が主に選ばれる。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="ssmixtwins Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="ssmixtwinsを使ったデータベースの生成マニュアル" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yu Akagi, MD.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
