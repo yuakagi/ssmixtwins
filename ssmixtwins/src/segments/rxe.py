@@ -23,7 +23,7 @@ def generate_rxe(
     dose_unit_name: str,
     dose_unit_code_system: str,
     dosage_form_code: str,  # Use merit_9_3 if you use this field.
-    tota_daily_dose: str,
+    total_daily_dose: str,
     dispense_amount: str,
     dispense_unit_code: str,
     dispense_unit_name: str,
@@ -76,29 +76,41 @@ def generate_rxe(
         # NOTE: This value '""' is for drugs whose dose units are hard to define, like ointments.
         dose_unit_full = '""'  # <- Not empty string, but visible "".
     else:
-        dose_unit_full = f"{dose_unit_code}^{dose_unit_name}^{dose_unit_code_system}"
-
-    if (
-        (dispense_unit_code != "")
-        or (dispense_unit_name != "")
-        or (dispense_unit_code_system != "")
-    ):
-        dispence_unit_full = (
-            f"{dispense_unit_code}^{dispense_unit_name}^{dispense_unit_code_system}"
-        )
+        if (
+            (dose_unit_code != "")
+            or (dose_unit_name != "")
+            or (dose_unit_code_system != "")
+        ):
+            dose_unit_full = (
+                f"{dose_unit_code}^{dose_unit_name}^{dose_unit_code_system}"
+            )
+        else:
+            dose_unit_full = ""
+    # Dispense unit
+    if dispense_unit_code == '""':
+        dispence_unit_full = '""'  # <- Not empty string, but visible "".
     else:
-        dispence_unit_full = ""
+        if (
+            (dispense_unit_code != "")
+            or (dispense_unit_name != "")
+            or (dispense_unit_code_system != "")
+        ):
+            dispence_unit_full = (
+                f"{dispense_unit_code}^{dispense_unit_name}^{dispense_unit_code_system}"
+            )
+        else:
+            dispence_unit_full = ""
     # Dosage form
     if dosage_form_code != "":
         dosage_form_full = f"{dosage_form_code}^{merit_9_3[dosage_form_code]}^MR9P"
     else:
         dosage_form_full = ""
     # Total daily dose
-    if tota_daily_dose != "":
+    if total_daily_dose != "":
         # NOTE: Here, we use unit codes from dispence unit.
-        tota_daily_dose_full = f"{tota_daily_dose}^{dispense_unit_code}&{dispense_unit_name}&{dispense_unit_code_system}"
+        total_daily_dose_full = f"{total_daily_dose}^{dispense_unit_code}&{dispense_unit_name}&{dispense_unit_code_system}"
     else:
-        tota_daily_dose_full = ""
+        total_daily_dose_full = ""
     # Delivery place
     if admission is not None:
         # Inpatient
@@ -132,7 +144,7 @@ def generate_rxe(
         16: "",  # Omitted for simplicity
         17: "",  # Omitted for simplicity
         18: "",  # Omitted for simplicity
-        19: tota_daily_dose_full,
+        19: total_daily_dose_full,
         20: "",
         21: "",  # Omitted for simplicity
         22: "",  # Omitted for simplicity

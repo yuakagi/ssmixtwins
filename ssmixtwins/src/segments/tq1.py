@@ -56,9 +56,16 @@ def generate_tq1(
     message_type = make_message_type(message_code, trigger_event, message_structure)
     # Repeat pattern
     # NOTE: Joined using '&'
-    repeat_full = (
-        f"{repeat_pattern_code}&{repeat_pattern_name}&{repeat_pattern_code_system}"
-    )
+    if (
+        (repeat_pattern_code != "")
+        or (repeat_pattern_name != "")
+        or (repeat_pattern_code_system != "")
+    ):
+        repeat_full = (
+            f"{repeat_pattern_code}&{repeat_pattern_name}&{repeat_pattern_code_system}"
+        )
+    else:
+        repeat_full = ""
     # Duration
     if duration != "":
         if not duration.isdigit():

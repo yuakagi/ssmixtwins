@@ -48,7 +48,7 @@ NAME_TO_PRESCRIPTION_UNIT = {
 }
 
 # For prescription only
-# NOTE: Units are selected from merit_9_4
+# NOTE: Units are selected from merit_9_4, forms from merit_9_3.
 NAME_TO_DOSE_FORM = {
     "TAB": {
         "keywords": ["錠"],
@@ -62,8 +62,8 @@ NAME_TO_DOSE_FORM = {
     },
     "PWD": {
         "keywords": ["散", "原末", "粉末", "顆粒"],
-        "dose_unit_code": "PAC",
-        "dispense_unit_code": "PAC",
+        "dose_unit_code": "PCK",
+        "dispense_unit_code": "PCK",
     },
     "SYR": {
         "keywords": ["シロップ"],
@@ -76,7 +76,7 @@ NAME_TO_DOSE_FORM = {
         "dispense_unit_code": "KO",
     },
     "OIT": {
-        "keywords": ["膏"],
+        "keywords": ["膏", "ローション"],
         "dose_unit_code": '""',  # Ointment dose unit is hard to define, so use '""'.
         "dispense_unit_code": "HON",
     },
@@ -91,7 +91,7 @@ NAME_TO_DOSE_FORM = {
         "dispense_unit_code": "SHT",
     },
     "LQD": {
-        "keywords": ["うがい液"],
+        "keywords": ["うがい液, 点眼", "点耳", "点鼻", "噴霧"],
         "dose_unit_code": '""',
         "dispense_unit_code": "HON",
     },
@@ -106,7 +106,7 @@ NAME_TO_DOSE_FORM = {
 # Compatible with udt_0162
 # NOTE: その他 is 'OTH'. The order matters!!. The program serches for the first match.
 NAME_TO_PRESCRIPTION_ROUTE = {
-    "AP": ["膏", "クリーム"],
+    "AP": ["膏", "クリーム", "ローション"],
     "PR": ["坐"],
     "OP": ["眼"],
     "OT": ["耳"],

@@ -505,6 +505,7 @@ class InjectionOrder:
         self.dispense_unit_code = dispense_unit_code
         self.dispense_unit_name = dispense_unit_name
         self.dispense_unit_code_system = dispense_unit_code_system
+        self.total_daily_dose = total_daily_dose
         self.prescription_number = prescription_number
         self.repeat_pattern_code = repeat_pattern_code
         self.repeat_pattern_name = repeat_pattern_name
@@ -755,14 +756,19 @@ def generate_random_injection_component(
 
     # Total component quantity in the order
     # NOTE: The multiplier is how many the same component is ordered (e.g., 1本, 2本, etc.)
-    multiplier = random.choices(
-        [1, 2, 3, 4, 5], weights=[50, 25, 12.5, 6.25, 6.25], k=1
-    )[
-        0
-    ]  # Random multiplier for quantity
+    if component_type == "B":
+        # For base components, we use fixed multiplier (=1)
+        multiplier = 1
+    else:
+        # For additive components, we use random multiplier (25 mg x 3 = 75 mg/dose, etc)
+        multiplier = random.choices(
+            [1, 2, 3, 4, 5], weights=[50, 25, 12.5, 6.25, 6.25], k=1
+        )[
+            0
+        ]  # Random multiplier for quantity
     if quantity.isdigit():
         # Process integer quantity
-        component_quantity = int(int(quantity) * multiplier)
+        component_quantity = str(int(quantity) * multiplier)
     else:
         # Process float quantity
         quantity_float = float(quantity) * multiplier
@@ -820,7 +826,7 @@ def generate_random_injection_order(
     dose_unit_code_system = "MR9P"
 
     order = InjectionOrder(
-        injection_type_code="01",  # We only use '01' (一般) for now
+        injection_type_code="00",  # TODO: We only use '00' (一般) for now. This is RXE-2 for OMP-02.
         dose_unit_code=dose_unit_code,
         dose_unit_name=dose_unit_name,
         dose_unit_code_system=dose_unit_code_system,

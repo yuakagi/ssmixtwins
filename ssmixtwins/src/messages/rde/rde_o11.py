@@ -202,10 +202,18 @@ def update_rde_o11_prescription_orders(
     # === Input validation & cleaning ===
 
     # Variables for the order
-    dose_unit_name = merit_9_4[prescription_order.dose_unit_code]
-    dose_unit_code_system = "MR9P"
-    dispense_unit_name = merit_9_4[prescription_order.dispense_unit_code]
-    dispense_unit_code_system = "MR9P"
+    if prescription_order.dose_unit_code != '""':
+        dose_unit_name = merit_9_4[prescription_order.dose_unit_code]
+        dose_unit_code_system = "MR9P"
+    else:
+        dose_unit_name = ""
+        dose_unit_code_system = ""
+    if prescription_order.dispense_unit_code != '""':
+        dispense_unit_name = merit_9_4[prescription_order.dispense_unit_code]
+        dispense_unit_code_system = "MR9P"
+    else:
+        dispense_unit_name = ""
+        dispense_unit_code_system = ""
     # one prescription order: {ORC RXE {TQ1} {RXR}}
     orc = generate_orc(
         message_code="RDE",
@@ -239,7 +247,7 @@ def update_rde_o11_prescription_orders(
         dispense_unit_code=prescription_order.dispense_unit_code,
         dispense_unit_name=dispense_unit_name,
         dispense_unit_code_system=dispense_unit_code_system,
-        tota_daily_dose=prescription_order.total_daily_dose,
+        total_daily_dose=prescription_order.total_daily_dose,
         prescription_number=prescription_order.prescription_number,
         outpatient_department_code=prescription_order.requester.department_code,
         admission=admission,
@@ -326,6 +334,7 @@ def update_rde_o11_injection_orders(
         dispense_unit_code=injection_order.dispense_unit_code,
         dispense_unit_name=injection_order.dispense_unit_name,
         dispense_unit_code_system=injection_order.dispense_unit_code_system,
+        total_daily_dose=injection_order.total_daily_dose,
         prescription_number=injection_order.prescription_number,
         outpatient_department_code=outpatient_department_code,
         admission=admission,

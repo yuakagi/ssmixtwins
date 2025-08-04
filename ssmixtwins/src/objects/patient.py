@@ -403,8 +403,8 @@ def generate_random_patient(
     patient_last_name = last_name_pair[0]
     patient_last_name_kana = last_name_pair[1]
     patient_last_name_roman = last_name_pair[2]
-    patient_last_name = f"仮{patient_first_name}" # Add a prefix
-    patient_last_name_kana = f"カリ{patient_first_name_kana}" # Add a prefix
+    patient_last_name = f"仮{patient_last_name}"  # Add a prefix
+    patient_last_name_kana = f"カリ{patient_last_name_kana}"  # Add a prefix
 
     # Address
     if random.random() < 0.5:
@@ -417,13 +417,13 @@ def generate_random_patient(
         )
     else:
         # Otherwise random
-        prefecture = None 
+        prefecture = None
     patient_address, patient_postal_code = generate_random_address(
-        fake, 
+        fake,
         # Use a selected one or random
-        prefecture=prefecture, 
+        prefecture=prefecture,
         # 50% chance of adding building name
-        add_building_name=random.random() < 0.5
+        add_building_name=random.random() < 0.5,
     )
     # Phone numbers
     home_phone = generate_random_phone(prefix="099")

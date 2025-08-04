@@ -1,4 +1,5 @@
 import os
+import re
 import glob
 import uuid
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -19,9 +20,11 @@ PRESC_KEYWORDS = [
     "原末",
     "粉末",
     "顆粒",
+    "細粒",
     "散",
     "シロップ",
     "膏",
+    "ローション",
     "クリーム",
     "貼付",
     "パッチ",
@@ -77,6 +80,13 @@ def clean_drug_names(drug_names: pd.Series) -> pd.Series:
     cropped = cropped.str.replace(
         r"(\d+\.\d*|\d+|([一二三四五六七八九十百千万]+))$", "", regex=True
     )
+
+    # Extract Katakana characters part as the proxy for drug names (most of the time, this is the drug name)
+    def extract_longest_katakana(text):
+        matches = re.findall(r"[ァ-ヶー]+", text)
+        return max(matches, key=len) if matches else None
+
+    cropped = cropped.apply(extract_longest_katakana)
 
     return cropped
 
@@ -305,7 +315,7 @@ def _clean_drug_orders(
         med_table["text_random"] = med_table["text_from_yj_random"].mask(
             med_table["text_from_yj_random"] == "", med_table["text_from_hot_random"]
         )
-        # Borrwow text from injection to prescription and vice versa, if empty
+        # Borrow text from injection to prescription and vice versa, if empty
         # But, to avoid placing confusing product names (like, "注射薬" in prescriptions),
         # we clean the drug names first.
         med_table["text_presc"] = med_table["text_presc"].mask(
@@ -476,7 +486,7 @@ def clean_base_table(
     atc_to_hot_map: pd.DataFrame,  # Should have columns ['atc', 'hot', 'text']
     yj_to_hot_map: pd.DataFrame,  # Should have columns ['yj', 'hot', 'text']
     jlac10_segment_map: pd.DataFrame,  # Should have columns ['jlac10', 'text']
-    end_date: str=None,  # YYYYMMDD
+    end_date: str = None,  # YYYYMMDD
     presc_type: int = 4,  # 4 is for prescriptions
     injec_type: int = 5,  # 5 is for injections
     # NOTE: Type below is the type numbers used in the AI-generated data.
@@ -593,6 +603,13 @@ def clean_base_table(
         return
     # =========================
 
+    # ⏱ ======= Truncate all future data ========
+    if end_date is not None:
+        end_datetime = to_datetime_anything(end_date)
+        end_datetime += pd.Timedelta(days=1)  # Include the end date
+        df = df[df["timestamp"] < end_datetime].reset_index(drop=True)
+    # ===========================================
+
     # === Finalize the DataFrame ===
     # Convert timestamp to string
     # Converting all timestamps to the same format
@@ -631,12 +648,6 @@ def clean_base_table(
             # NOTE: 'atc' is created, but currently not used in the final DataFrame.
         ]
     ]
-
-    # ⏱ Truncate all future data
-    if end_date is not None:
-        end_datetime = to_datetime_anything(end_date)
-        end_datetime += pd.Timedelta(days=1)  # Include the end date
-        df = df[df["timestamp"] < end_datetime].reset_index(drop=True)
 
     # Save file (File name: {start_age}_{sex}.csv)
     if len(df) == 0:
@@ -688,10 +699,10 @@ def prepare_csv_from_ai_data(
     yj_to_hot_map_path: str,
     jlac10_segment_map_path: str,
     mak_workers: int = 1,
-    end_date: str = None, # YYYYMMDD, all data beyond this date will be removed
+    end_date: str = None,  # YYYYMMDD, all data beyond this date will be removed
 ):
     """Prepares CSV files from AI-generated data.
-    
+
     Args:
         file_pattern (str): Pattern to match AI-generated data files.
         output_dir (str): Directory to save the cleaned CSV files.
@@ -709,7 +720,6 @@ def prepare_csv_from_ai_data(
     Returns:
         None: The function saves cleaned CSV files to the specified output directory.
     """
-
 
     if not os.path.exists(output_dir):
         raise FileNotFoundError(
